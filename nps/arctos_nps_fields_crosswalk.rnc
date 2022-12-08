@@ -1,0 +1,30 @@
+default namespace = ""
+
+start =
+   element crosswalk {
+      element field {
+         element arctos {
+            attribute req { xsd:integer },
+            attribute type { types },
+            element bl_name { xsd:NCName },
+            element default { text }?,
+            element example { text }?,
+            element notes { text }?
+         }?,
+         element nps {
+            attribute req { xsd:integer },
+            attribute type { types },
+            attribute order { xsd:integer },
+            element name { text },
+            element default { text }?,
+            element example { text }?,
+            element notes { text }?,
+            element a2n { "direct" | "transform" | "combine" |
+               "split" | "fixed" }
+         }*
+      }+
+   }
+
+types = ( "string" | "codetable" | "lookup" | "integer" | "float" |
+   "date" | "dateUS" )
+   

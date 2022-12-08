@@ -1,0 +1,852 @@
+<!--
+    XQuery:
+       for $i in //nps
+       order by xs:integer($i/@order)
+       return concat($i/@order/string(), " - " , $i/name/string(),
+       " (", $i/a2n/string(), ")")
+-->
+
+<crosswalk>
+
+  <!-- DB metadata -->
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>guid</bl_name>
+      <example>UAM:Herb:12345</example>
+      <notes>Not required for bulkload obviously, but the key
+      identifier after import</notes>
+    </arctos>
+    <nps req="0" type="string" order="24">
+      <name>Other Numbers</name>
+      <example>Arctos=UAM:Herb:12345 ALAAC=V2345</example>
+      <a2n>combine</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <arctos req="1" type="integer">
+      <bl_name>collection_object_id</bl_name>
+      <example>1</example>
+      <notes>dummy number in bulkloader</notes>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>enteredby</bl_name>
+      <example>mbreslin</example>
+      <notes>arctos user id</notes>
+    </arctos>
+    <nps req="1" type="string" order="25">
+      <name>Cataloger</name>
+      <example>Jimenez, James</example>
+      <notes>Should be last name comma first name</notes>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <arctos req="0" type="date">
+      <bl_name>entereddate</bl_name>
+      <example>2022-12-06</example>
+      <notes>date entered into arctos</notes>
+    </arctos>
+    <nps req="1" type="dateUS" order="26">
+      <name>Catalog Date</name>
+      <example>3/23/2005</example>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>accn</bl_name>
+      <example>[UAM:Herb]2012.07</example>
+      <notes>must exist in arctos before bulkload</notes>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>guid_prefix</bl_name>
+      <example>UAM:Herb</example>
+      <notes>changes per collection</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>collecting_source</bl_name>
+      <example>wild</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="codetable">
+      <bl_name>specimen_event_type</bl_name>
+      <default>collection</default>
+      <example>collection</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>part_name_1</bl_name>
+      <default>whole organism</default>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="string">
+      <bl_name>part_condition_1</bl_name>
+      <default>unchecked</default>
+    </arctos>
+    <nps req="1" type="string" order="21">
+      <name>Condition</name>
+      <default>COM/GD</default>
+      <notes>In general, our data will be unchecked, but this is not a
+      valid value in NPS DB - use COMplete/GooD</notes>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="1" type="string">
+      <bl_name>part_lot_count_1</bl_name>
+      <example>1</example>
+    </arctos>
+    <nps req="1" type="integer" order="13">
+      <name>Item Count</name>
+      <example>1</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="1" type="codetable">
+      <bl_name>part_disposition_1</bl_name>
+      <default>being processed</default>
+      <example>in collection</example>
+      <notes>
+      </notes>
+    </arctos>
+    <nps req="1" type="codetable" order="15">
+      <name>Storage Unit</name>
+      <default>EA</default>
+      <notes>always EA</notes>
+      <a2n>fixed</a2n>
+    </nps>
+    <nps req="1" type="codetable" order="16">
+      <name>Description</name>
+      <default>Herbarium sheet</default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>part_barcode_1</bl_name>
+      <example>H1270770</example>
+      <notes>This can be tricky. If we assign it to whole organism as
+      part_1, it is actually written to herbarium sheet that holds the
+      organism.</notes>
+    </arctos>
+  </field>
+  
+  <!-- Identifiers -->
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>other_id_num_type_4</bl_name>
+      <example>collector number</example>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>other_id_num_4</bl_name>
+      <example>777</example>
+    </arctos>
+    <nps req="1" type="string" order="19">
+      <name>Collection #</name>
+      <example>SRJ USA-TN-1</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>other_id_num_type_3</bl_name>
+      <example>ALAAC</example>
+    </arctos>
+  </field>
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>other_id_num_3</bl_name>
+      <example>V159777</example>
+      <notes>Use this to add to NPS: Other Numbers</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>other_id_num_type_1</bl_name>
+      <example>U. S. National Park Service catalog</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>other_id_num_1</bl_name>
+      <example>PARK 4444</example>
+    </arctos>
+    <nps req="1" type="string" order="1">
+      <name>Catalog #</name>
+      <example>PARK 4444</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>other_id_num_type_2</bl_name>
+      <example>U. S. National Park Service accession</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>other_id_num_2</bl_name>
+      <example>PARK-00123</example>
+    </arctos>
+    <nps req="1" type="string" order="2">
+      <name>Accession #</name>
+      <example>PARK-00123</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <!-- Taxonomy -->
+  <field>
+    <nps req="1" type="string" order="4">
+      <name>Kingdom</name>
+      <example>Plantae</example>
+      <notes>'Fungi' for lichen. Inconsistency in template from NPS,
+      CAPS or not. The exports do not have caps for this field</notes>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+  <field>
+    <nps req="1" type="string" order="5">
+      <name>Phylum/Division</name>
+      <example>Coniferophyta</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+  <field>
+    <nps req="1" type="string" order="6">
+      <name>Class</name>
+      <example>Pinopsida</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>taxon_name</bl_name>
+      <example>Tsuga canadensis</example>
+      <notes>
+      </notes>
+    </arctos>
+    <nps req="1" type="string" order="9">
+      <name>Sci. Name:Genus</name>
+      <example>Tsuga</example>
+      <a2n>split</a2n>
+    </nps>
+    <nps req="1" type="string" order="10">
+      <name>Sci. Name:Species</name>
+      <example>canadensis</example>
+      <notes>Q: var and ssp?</notes>
+      <a2n>split</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="1" type="codetable">
+      <bl_name>nature_of_id</bl_name>
+      <default>unknown</default>
+      <example>features</example>
+      <notes>almost always features, but can also be fine features</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>id_made_by_agent</bl_name>
+      <example>Carolyn Parker</example>
+      <notes>agent names exist in the system and must be entered
+      exactly as they are</notes>
+    </arctos>
+    <nps req="1" type="string" order="27">
+      <name>Identified By</name>
+      <example>Neilson, Jared</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <arctos req="0" type="date">
+      <bl_name>made_date</bl_name>
+      <example>2012-07-14</example>
+      <notes>date of identification</notes>
+    </arctos>
+    <nps req="1" type="dateUS" order="28">
+      <name>Ident Date</name>
+      <example>2/14/1996</example>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+
+  <!-- Collection -->
+  <field>
+    <arctos req="1" type="codetable">
+      <bl_name>collector_role_1</bl_name>
+      <example>collector</example>
+      <notes>must list at least one collector</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>collector_agent_1</bl_name>
+      <example>Marissa A. Breslin</example>
+      <notes>
+      </notes>
+    </arctos>
+    <nps req="1" type="string" order="18">
+      <name>Collector</name>
+      <example>BRESLIN, MARISSA</example>
+      <notes>Q: how to deal with multiple collectors? Not seeing any
+      in export documents, so will only use Collector 1. CAPS</notes>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+
+
+  <field>
+    <arctos req="0" type="lookup">
+      <bl_name>collector_agent_2</bl_name>
+      <example>Jo Doe</example>
+    </arctos>
+  </field>
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>collector_role_2</bl_name>
+      <example>collector</example>
+      <notes>another common role is preparator</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="string">
+      <bl_name>verbatim_date</bl_name>
+      <example>July 2012</example>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="1" type="date">
+      <bl_name>began_date</bl_name>
+      <example>2012-07-01</example>
+      <notes>beginning of _event_</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="date">
+      <bl_name>ended_date</bl_name>
+      <example>2012-07-31</example>
+      <notes>end of event</notes>
+    </arctos>
+    <nps req="1" type="dateUS" order="20">
+      <name>Collection Date</name>
+      <example>5/23/2008</example>
+      <notes>We will use the event end date</notes>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>event_assigned_by_agent</bl_name>
+      <example>camwebb</example>
+      <notes>who assigned the specimen to the collecting event?</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="date">
+      <bl_name>event_assigned_date</bl_name>
+      <notes>date of assigning specimen to event</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="codetable">
+      <bl_name>verificationstatus</bl_name>
+      <default>unverified</default>
+      <example>unverified</example>
+      <notes>is the specimen verified to be part of the event?</notes>
+    </arctos>
+  </field>
+
+  <!-- Geography -->
+  <field>
+    <arctos req="1" type="lookup">
+      <bl_name>higher_geog</bl_name>
+      <example>United States, Alaska</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="1" type="string">
+      <bl_name>verbatim_locality</bl_name>
+      <example>2 miles N of Mudd Beach</example>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="1" type="string">
+      <bl_name>spec_locality</bl_name>
+      <example>2 miles N of Mudd Beach</example>
+      <notes>Specific Locality should start with the most specific
+      part of the locality and end with the most
+      general. https://handbook.arctosdb.org/documentation/locality</notes>
+    </arctos>
+    <nps req="0" type="string" order="30">
+      <name>Locality</name>
+      <example>Between Clingmans Dome and Andrews Bald on west side of
+      Clingmans Dome Bypass Trail</example>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>habitat</bl_name>
+      <example>Picea glauca forest</example>
+    </arctos>
+    <nps req="0" type="string" order="42">
+      <name>Habitat</name>
+      <a2n>direct</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="float">
+      <bl_name>dec_long</bl_name>
+      <example>-155.0674</example>
+    </arctos>
+    <nps req="1" type="string" order="37">
+      <name>Lat LongN/W</name>
+      <example>N67.63/W163.87</example>
+      <a2n>combine</a2n>
+    </nps>
+  </field>
+  <field>
+    <arctos req="0" type="float">
+      <bl_name>dec_lat</bl_name>
+      <example>62.3043</example>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>datum</bl_name>
+      <example>World Geodetic System 1984</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+    <nps req="0" type="string" order="33">
+      <name>Reference Datum</name>
+      <notes>The choices are: NAD 27, NAD 83, or WGS 84</notes>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>georeference_source</bl_name>
+      <example>Google Earth</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>orig_lat_long_units</bl_name>
+      <example>decimal degrees</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>georeference_protocol</bl_name>
+      <example>not recorded</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="float">
+      <bl_name>max_error_distance</bl_name>
+      <example>not recorded</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>max_error_units</bl_name>
+      <example>m</example>
+      <notes>required if long/lat given</notes>
+    </arctos>
+  </field>
+  
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>minimum_elevation</bl_name>
+      <example>600</example>
+      <notes>in m. min and max often same</notes>
+    </arctos>
+  </field>
+  <field>
+    <arctos req="0" type="string">
+      <bl_name>maximum_elevation</bl_name>
+      <example>700</example>
+      <notes>in m.</notes>
+    </arctos>
+    <nps req="0" type="string" order="38">
+      <name>Elevation</name>
+      <example>1994 m</example>
+      <a2n>transform</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <arctos req="0" type="codetable">
+      <bl_name>orig_elev_units</bl_name>
+      <example>m</example>
+      <notes>most commonly m or ft</notes>
+    </arctos>
+  </field>
+
+  <!-- NPS specific -->
+  
+  <field>
+    <nps req="1" type="codetable" order="3">
+      <name>Class 1</name>
+      <default>BIOLOGY</default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="58">
+      <name>Location</name>
+      <default>UAMN - ALA HERBARIUM</default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="codetable" order="31">
+      <name>Unit</name>
+      <default>CAKR</default>
+      <notes>Fixed for a park</notes>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="codetable" order="32">
+      <name>State</name>
+      <default>AK</default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <!-- ICMS blank -->
+  <field>
+    <nps req="0" type="string" order="7">
+      <name>Order</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="8">
+      <name>Family</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="11">
+      <name>Common Name</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+  
+  <field>
+    <nps req="0" type="string" order="12">
+      <name>TSN</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="14">
+      <name>Quantity</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="17">
+      <name>Dimens/Weight</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="22">
+      <name>Condition Desc</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="23">
+      <name>Study #</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="29">
+      <name>Repro Method</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="34">
+      <name>Watrbody/Drain:Waterbody</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="35">
+      <name>Watrbody/Drain:Drainage</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="36">
+      <name>UTM Z/E/N</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="39">
+      <name>Depth</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="40">
+      <name>Depos Environ</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="41">
+      <name>Habitat/Comm</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="43">
+      <name>Slope</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="44">
+      <name>Aspect</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="45">
+      <name>Soil Type</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="46">
+      <name>For/Per/Sub</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="47">
+      <name>Assoc Spec</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="48">
+      <name>Type Specimen</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="49">
+      <name>Threat/Endang</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="50">
+      <name>T/E Date</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="51">
+      <name>Rare</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="52">
+      <name>Exotic/Native</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="53">
+      <name>Age</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="54">
+      <name>Sex</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="55">
+      <name>Notes</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="56">
+      <name>Field Season</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="57">
+      <name>Ctrl Prop</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="59">
+      <name>Object Status</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="60">
+      <name>Status Date</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="61">
+      <name>Catalog Folder</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+  <field>
+    <nps req="0" type="string" order="62">
+      <name>Maint. Cycle</name>
+      <default></default>
+      <a2n>fixed</a2n>
+    </nps>
+  </field>
+
+</crosswalk>

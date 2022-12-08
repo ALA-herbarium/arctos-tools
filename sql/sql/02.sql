@@ -1,0 +1,155 @@
+-- Info, fields in `flat`, list all
+
+SELECT *
+FROM flat
+LIMIT 1;
+
+-- 2022-11-17: (* = key field)
+
+-- (IDENTIFIERS/SPECIMEN MANAGEMENT)
+--   collection_object_id *
+--   guid *
+--   othercatalognumbers *
+--   accession *
+--   imageurl *
+--   partdetail *
+--   cat_num
+--   accn_id
+--   basisofrecord
+--   genbanknum
+--   relatedcatalogeditems
+--   typestatus
+--   sex
+--   parts
+--   encumbrances
+--   age_class
+--   attributes
+--   verificationstatus
+--   specimendetailurl
+--   fieldnotesurl
+--   catalognumbertext
+--   stale_flag
+--   lastuser
+--   lastdate
+--   preparators
+--   enteredby
+--   entereddate
+--   flags
+--   cataloged_item_type
+--   use_license_url
+--   ispublished
+--   has_tissues
+--   last_edited_table
+--   related_record_cache
+--   attributedetail
+--   guid_prefix
+--   catalognumberint
+--   lastpartlocation
+--   organism_id
+--   last_refresh_date
+
+-- (COLLECTION)
+--   collection_id
+--   institution_acronym
+--   collection_cde
+--   collection
+--   collecting_event_id
+--   verbatim_date *
+--   last_edit_date
+--   individualcount
+--   coll_obj_disposition
+--   collectors *
+--   field_num
+--   collecting_method
+--   collecting_source
+--   dayofyear
+--   year
+--   month
+--   day
+--   verbatim_locality *
+--   made_date
+--   collectornumber
+--   began_date *
+--   ended_date *
+--   event_assigned_by_agent
+--   event_assigned_date
+--   specimen_event_remark
+--   specimen_event_type
+--   coll_event_remarks
+--   collecting_event_name
+
+-- (GEOGRAPHY)
+--   geog_auth_rec_id
+--   higher_geog *
+--   continent_ocean
+--   country
+--   state_prov
+--   county
+--   feature
+--   island
+--   island_group
+--   quad
+--   sea
+--   locality_id
+--   spec_locality *
+--   minimum_elevation
+--   maximum_elevation
+--   orig_elev_units
+--   min_elev_in_m
+--   max_elev_in_m
+--   dec_lat *
+--   dec_long *
+--   datum
+--   orig_lat_long_units
+--   verbatimlatitude
+--   coordinateuncertaintyinmeters
+--   habitat *
+--   associated_species
+--   depth_units
+--   min_depth
+--   max_depth
+--   min_depth_in_m
+--   max_depth_in_m
+--   verbatim_coordinates
+--   georeference_source
+--   georeference_protocol
+--   locality_name
+--   locality_search_terms
+--   json_locality
+--   locality_remarks
+--   verbatimelevation
+
+-- (IDENTIFICATION)
+--   identification_id
+--   scientific_name *
+--   identifiedby
+--   date_made_date
+--   remarks
+--   taxa_formula
+--   full_taxon_name
+--   phylclass
+--   kingdom
+--   phylum
+--   phylorder
+--   family
+--   genus
+--   species
+--   subspecies
+--   author_text
+--   nomenclatural_code
+--   infraspecific_rank
+--   identificationmodifier
+--   id_sensu
+--   nature_of_id
+--   previousidentifications
+--   identification_remarks
+--   formatted_scientific_name
+--   subfamily
+--   tribe
+--   subtribe
+--   taxon_rank
+--   superfamily
+
+
+
+

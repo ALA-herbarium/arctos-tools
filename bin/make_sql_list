@@ -1,0 +1,23 @@
+#!/bin/sh
+
+cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+echo -e "# SQL queries\n" > ../sql/README.md
+
+gawk 'FNR == 1 { 
+        f[gensub(/^--+ */,"","G",$0)] = gensub(/\.\.\/sql\/sql\//,"","G",FILENAME) 
+      }
+      END {
+        PROCINFO["sorted_in"] = "@ind_str_asc"
+        for (i in f) {
+          split(i, j, ",")
+          if (!h[j[1]]) {
+            print " * **" j[1] "**"
+            h[j[1]] = 1
+          }
+          print "    * " i " [[" f[i] "](sql/" f[i] ")]"
+        }
+        print "" 
+      }' ../sql/sql/*sql >> ../sql/README.md
+
+

@@ -1,0 +1,59 @@
+#!/bin/sh
+
+function usage () {
+    echo "Usage:"
+    echo "  export ARCTOS_CFID=\"...\""
+    echo "  sql \"SELECT ...\" | -f Q.sql [ optional_arg ]"
+    exit
+}
+
+if [ -z $ARCTOS_CFID ]
+then
+    usage
+
+elif [ $# = 0 ]
+then
+    usage
+
+elif [ $# -eq 1 ]   # single argument of SQL
+then
+    if [ `echo "$1" | grep -c -E "(SELECT|select)"` -eq 1 ]
+    then
+        SQL="$1"
+    else
+        echo "(Missing SELECT)"
+        usage
+    fi
+
+elif [ $# -ge 2 ]
+then
+    if [ $1 = "-f" -a -f $2 -a `grep -c -E "(SELECT|select)" $2` -ge 1 ]
+    then
+        # check for needed CLI input
+        if [ `grep -c "__Q" $2` -eq 0 ]
+        then
+            SQL=`cat $2`
+        elif [ `grep -c "__Q1__" $2` -eq 1 -a $# -eq 3 ]
+        then
+            SQL=`cat $2 | sed "s/__Q1__/$3/g"`
+        else
+            echo "(SQL requires additional argument)"
+            usage
+        fi
+    else
+        usage
+    fi
+else
+    usage
+fi
+
+#echo $SQL
+#exit
+
+curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' \
+     -H "Cookie: cfid=$ARCTOS_CFID; cftoken=0" \
+     --data 'action=run' \
+     --data 'format=csv' \
+     --data-urlencode "sqltxt=$SQL" \
+    | ~/bin/csv2psv
+
