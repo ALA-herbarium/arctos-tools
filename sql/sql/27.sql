@@ -95,7 +95,7 @@ SELECT
   -- 29 - Repro Method (fixed)
   '' AS "Repro Method",
   -- 30 - Locality (direct)
-  spec_locality AS "Locality"
+  spec_locality AS "Locality",
   -- 31 - Unit (fixed)
   '' AS "Unit",
   -- 32 - State (fixed)
@@ -103,67 +103,69 @@ SELECT
   -- 33 - Reference Datum (transform)
   CASE
     WHEN datum = 'World Geodetic System 1984' THEN 'WGS 84'
-    WHEN datum = 'foo1' THEN 'NAD 27'
-    WHEN datum = 'foo2' THEN 'NAD 83'
+    WHEN datum = 'North American Datum 1927' THEN 'NAD 27'
+    WHEN datum = 'North American Datum 1983' THEN 'NAD 83'
     ELSE NULL END
-  AS "Reference Datum"
+  AS "Reference Datum",
   -- 34 - Watrbody/Drain:Waterbody (fixed)
-  -- '' AS "",
+  '' AS "Watrbody/Drain:Waterbody",
   -- 35 - Watrbody/Drain:Drainage (fixed)
-  -- '' AS "",
+  '' AS "Watrbody/Drain:Drainage",
   -- 36 - UTM Z/E/N (fixed)
-  -- '' AS "",
+  '' AS "UTM Z/E/N",
   -- 37 - Lat LongN/W (combine)
-  -- '' AS "",
+  CONCAT_WS('', 'N', dec_lat, '/W',  REPLACE(dec_long::varchar,'-',''))
+    AS "Lat LongN/W",
   -- 38 - Elevation (transform)
-  -- '' AS "",
+  CONCAT_WS('', max_elev_in_m, ' m.') AS "Elevation",
   -- 39 - Depth (fixed)
-  -- '' AS "",
+  '' AS "Depth",
   -- 40 - Depos Environ (fixed)
-  -- '' AS "",
+  '' AS "Depos Environ",
   -- 41 - Habitat/Comm (fixed)
-  -- '' AS "",
+  '' AS "Habitat/Comm",
   -- 42 - Habitat (direct)
-  -- '' AS "",
+  habitat AS "Habitat",
   -- 43 - Slope (fixed)
-  -- '' AS "",
+  '' AS "Slope",
   -- 44 - Aspect (fixed)
-  -- '' AS "",
+  '' AS "Aspect",
   -- 45 - Soil Type (fixed)
-  -- '' AS "",
+  '' AS "Soil Type",
   -- 46 - For/Per/Sub (fixed)
-  -- '' AS "",
+  '' AS "For/Per/Sub",
   -- 47 - Assoc Spec (fixed)
-  -- '' AS "",
+  '' AS "Assoc Spec",
   -- 48 - Type Specimen (fixed)
-  -- '' AS "",
+  typestatus AS "Type Specimen",
   -- 49 - Threat/Endang (fixed)
-  -- '' AS "",
+  '' AS "Threat/Endang",
   -- 50 - T/E Date (fixed)
-  -- '' AS "",
+  '' AS "T/E Date",
   -- 51 - Rare (fixed)
-  -- '' AS "",
+  '' AS "Rare",
   -- 52 - Exotic/Native (fixed)
-  -- '' AS "",
+  '' AS "Exotic/Native",
   -- 53 - Age (fixed)
-  -- '' AS "",
+  '' AS "Age",
   -- 54 - Sex (fixed)
-  -- '' AS "",
+  '' AS "Sex",
   -- 55 - Notes (fixed)
-  -- '' AS "",
+  '' AS "Notes",
   -- 56 - Field Season (fixed)
-  -- '' AS "",
+  '' AS "Field Season",
   -- 57 - Ctrl Prop (fixed)
-  -- '' AS "",
+  '' AS "Ctrl Prop",
   -- 58 - Location (fixed)
-  -- '' AS "",
+  'UAMN - ALA HERBARIUM' AS "Location",
   -- 59 - Object Status (fixed)
-  -- '' AS "",
+  '' AS "Object Status",
   -- 60 - Status Date (fixed)
-  -- '' AS "",
+  '' AS "Status Date",
   -- 61 - Catalog Folder (fixed)
-  -- '' AS "",
+  '' AS "Catalog Folder",
   -- 62 - Maint. Cycle (fixed)
+  '' AS "Maint. Cycle"
 FROM flat
 WHERE guid IN ('UAM:Herb:243406', 'UAM:Herb:244304', 'UAM:Herb:141482', 'UAM:Herb:147801', 'UAM:Herb:147808', 'UAM:Herb:148352', 'UAM:Herb:148354', 'UAM:Herb:148428', 'UAM:Herb:39427', 'UAM:Herb:68501', 'UAM:Ento:473386')
 ORDER BY guid ;
