@@ -3,9 +3,20 @@
 SELECT
   -- 1 - Catalog # (direct)
   CASE WHEN othercatalognumbers ~ 'National Park Service catalog'
-    THEN REGEXP_REPLACE(REGEXP_REPLACE(othercatalognumbers,
+    THEN CONCAT_WS('',
+      -- first four chars
+      SUBSTRING(REGEXP_REPLACE(othercatalognumbers,
+      '^.*U\. S\. National Park Service catalog=([A-Z]+ *[0-9]+).*$', '\1')
+      ,1,4),
+      -- spaces
+      REPEAT(' ', (12-CHAR_LENGTH(REGEXP_REPLACE(REGEXP_REPLACE(
+      othercatalognumbers,
       '^.*U\. S\. National Park Service catalog=([A-Z]+ *[0-9]+).*$', '\1'),
-      ' +', ' ')
+      ' +','')))),
+      -- numbers
+      REGEXP_REPLACE(SUBSTRING(REGEXP_REPLACE(othercatalognumbers,
+      '^.*U\. S\. National Park Service catalog=([A-Z]+ *[0-9]+).*$', '\1'),
+      5),' +',''))
     ELSE NULL END
   AS "Catalog #",
   -- 2 - Accession # (direct)
@@ -45,7 +56,7 @@ SELECT
   -- 15 - Storage Unit (fixed)
   'EA' AS "Storage Unit",
   -- 16 - Description (fixed)
-  'Herbarium sheet' AS "Description",
+  CONCAT(species, '; whole organism') AS "Description",
   -- 17 - Dimens/Weight (fixed)
   '' AS "Dimens/Weight",
   -- 18 - Collector (transform)
@@ -95,7 +106,7 @@ SELECT
   -- 29 - Repro Method (fixed)
   '' AS "Repro Method",
   -- 30 - Locality (direct)
-  spec_locality AS "Locality",
+  verbatim_locality AS "Locality",
   -- 31 - Unit (fixed)
   '' AS "Unit",
   -- 32 - State (fixed)
@@ -152,18 +163,18 @@ SELECT
   '' AS "Sex",
   -- 55 - Notes (fixed)
   '' AS "Notes",
-  -- 56 - Field Season (fixed)
-  '' AS "Field Season",
+  -- 56 - Field Season
+  TO_CHAR(ended_date::date, 'YYYY') AS "Field Season",
   -- 57 - Ctrl Prop (fixed)
-  '' AS "Ctrl Prop",
+  'N' AS "Ctrl Prop",
   -- 58 - Location (fixed)
   'UAMN - ALA HERBARIUM' AS "Location",
   -- 59 - Object Status (fixed)
-  '' AS "Object Status",
+  'LOAN OUT – NON-NPS – NON-FEDERAL' AS "Object Status",
   -- 60 - Status Date (fixed)
   '' AS "Status Date",
   -- 61 - Catalog Folder (fixed)
-  '' AS "Catalog Folder",
+  'N' AS "Catalog Folder",
   -- 62 - Maint. Cycle (fixed)
   '' AS "Maint. Cycle"
 FROM flat
