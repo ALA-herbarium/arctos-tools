@@ -1,0 +1,96 @@
+#!/usr/bin/gawk -E
+
+BEGIN{
+  config()
+  read_args()
+  print "1. Loading data" > "/dev/stderr"
+  load_data(NPS, N)
+  load_data(ARCTOS, A)
+  print "2. Comparing included Catalog #s" > "/dev/stderr"
+  compare_cn()
+  
+  # for (r in N)
+  #   for (f in N[r])
+  #     print r " -> " f " = " N[r][f] 
+  # for (f in A)
+  #    print f 
+  
+}
+
+
+function config() {
+  PROCINFO["sorted_in"] =  "@ind_str_asc"
+  RS = "\r?\n"
+  FPAT = "([^,]*)|(\"([^\"]|\"\")+\")"
+}
+
+function read_args(    arg) {
+  # Read arguments, check, give usage
+  for (arg = 1; arg < ARGC; arg++) {
+    if      (ARGV[arg] == "-a") {
+      ARCTOS = ARGV[arg+1]
+      arg++
+    }
+    else if (ARGV[arg] == "-n") {
+      NPS = ARGV[arg+1]
+      arg++
+    }
+    else
+      error("Error: argument '" ARGV[arg] "' not recognized")
+  }
+  if (!ARCTOS || !NPS )
+    error("Usage: nacompare -n NPS_CSV -a ARCTOS_CSV")
+}
+
+function load_data(file, array,     line, fn, i, c, nc) {
+  
+  while (getline < file) {
+    if (!line++) {
+      for (i = 1; i <= NF; i++) {
+        fn[i] = clean($i)
+        if (fn[i] == "Catalog #") {
+          c = i
+          nc++
+        }
+      }
+      if (!c)
+        error("  error: no 'Catalog #' field in '" file "'")
+      if (nc>1)
+        error("  error: more than one 'Catalog #' field in '" file "'")
+    }
+    else {
+      # normalize catalog numbers, single space only
+      gsub(/ +/," ",$c)
+      if (isarray(array[clean($c)]))
+        error("  error: duplicate Catalog # in '" file "' : " clean($c))
+      for (i = 1; i <= NF ; i++)
+        array[clean($c)][fn[i]] = clean($i)
+    }
+  }
+  printf "  records in %-40s: %10'd\n", ("'" file "'"), line-1 > "/dev/stderr"
+}
+
+function compare_cn(    i, fail) {
+  for (i in N)
+    if (!isarray(A[i])) {
+      fail = 1
+      print "  Catalog # '" i "' in NPS file is not in Arctos file" \
+        > "/dev/stderr"
+    }
+  if (!fail)
+    print "  all Catalog #s in NPS file included in Arctos file"    \
+      > "/dev/stderr"
+  
+}
+
+function clean(t) {
+  gsub(/^"/,"",t)
+  gsub(/"$/,"",t)
+  gsub(/""/,"\"",t)
+  return t
+}
+
+function error(msg) {
+  print msg > "/dev/stderr"
+  exit 1
+}
