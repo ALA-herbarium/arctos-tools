@@ -7,21 +7,23 @@ BEGIN{
   load_data(NPS, N)
   load_data(ARCTOS, A)
   print "2. Comparing included Catalog #s" > "/dev/stderr"
-  compare_cn()
-  
-  # for (r in N)
-  #   for (f in N[r])
-  #     print r " -> " f " = " N[r][f] 
-  # for (f in A)
-  #    print f 
+  compare_catno()
+  print "3. Comparing cells" > "/dev/stderr"
+  compare_cells()
   
 }
 
 
-function config() {
+function config(  i, t) {
   PROCINFO["sorted_in"] =  "@ind_str_asc"
   RS = "\r?\n"
   FPAT = "([^,]*)|(\"([^\"]|\"\")+\")"
+  OFS = "|"
+  split("Accession #|Sci. Name:Genus|Sci. Name:Species|Collector|Collection #" \
+        "|Collection Date|Other Numbers|Identified By|Ident Date|Lat LongN/W" \
+        "|Elevation|Habitat|Reference Datum",t,"|")
+  for (i in t)
+    Tests[t[i]]
 }
 
 function read_args(    arg) {
@@ -35,11 +37,18 @@ function read_args(    arg) {
       NPS = ARGV[arg+1]
       arg++
     }
+    else if (ARGV[arg] == "-f")
+      BYFIELD = 1
+    else if ((ARGV[arg] == "-h") || (ARGV[arg] == "--help"))
+      HELP = 1
     else
       error("Error: argument '" ARGV[arg] "' not recognized")
   }
-  if (!ARCTOS || !NPS )
-    error("Usage: nacompare -n NPS_CSV -a ARCTOS_CSV")
+  if (!ARCTOS || !NPS || HELP)
+    error("Usage: nacompare \n         "\
+          "-n NPS_CSV\n         "\
+          "-a ARCTOS_CSV\n       "\
+          "[ -f sort by field,record rather than by record,field (default) ]")
 }
 
 function load_data(file, array,     line, fn, i, c, nc) {
@@ -70,9 +79,9 @@ function load_data(file, array,     line, fn, i, c, nc) {
   printf "  records in %-40s: %10'd\n", ("'" file "'"), line-1 > "/dev/stderr"
 }
 
-function compare_cn(    i, fail) {
+function compare_catno(    i, fail) {
   for (i in N)
-    if (!isarray(A[i])) {
+    if (!(i in A)) {
       fail = 1
       print "  Catalog # '" i "' in NPS file is not in Arctos file" \
         > "/dev/stderr"
@@ -80,9 +89,25 @@ function compare_cn(    i, fail) {
   if (!fail)
     print "  all Catalog #s in NPS file included in Arctos file"    \
       > "/dev/stderr"
-  
 }
 
+function compare_cells() {
+  if (BYFIELD) {
+    for (i in Tests)
+      for (j in N)
+        if ((j in A) && (i in N[j]))
+          if (N[j][i] != A[j][i])
+            print i, j, N[j][i] , A[j][i]
+  }
+  else {
+    for (j in N)
+      for (i in Tests)
+        if ((j in A) && (i in N[j]))
+          if (N[j][i] != A[j][i])
+            print j, i, N[j][i] , A[j][i]
+  }
+}
+  
 function clean(t) {
   gsub(/^"/,"",t)
   gsub(/"$/,"",t)
