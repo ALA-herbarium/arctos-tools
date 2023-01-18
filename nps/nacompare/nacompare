@@ -97,7 +97,7 @@ function compare_cells() {
       for (j in N)
         if ((j in A) && (i in N[j]))
           if (N[j][i] != A[j][i])
-            print i, j, N[j][i] , A[j][i]
+            print j, i, N[j][i] , A[j][i]
   }
   else {
     for (j in N)
