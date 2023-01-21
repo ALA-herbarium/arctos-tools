@@ -1,0 +1,81 @@
+digraph flow {
+    node [fontname="Helvetica",shape=box];
+    edge [fontname="Courier", len=1.5];
+    overlap=false;
+    //rankdir=BT;
+    newrank=true;
+    ranksep=0.5
+    icms [label="ICMS", shape=parallelogram,color=green,style=filled]
+    //
+    icms -> csv1 ;
+    icms -> csv3 [dir=back];
+    //
+    subgraph icms1 {
+        rank=same;
+        csv1 [label="ICMS export\nCSV [in 1]",color=green]
+        csv3 [label="Arctos final CSVs\n('existing' and 'new')\n[in 4]",
+        color=green]
+    };
+    //
+    csv1 -> nacompare;
+    csv1 -> spectracker ;
+    nacompare -> notes1
+    nacompare -> notes2 ;
+    notes1 -> spectracker
+    notes2 -> spectracker
+    csv3 -> itis [dir=back];
+    //
+    subgraph ala1 {
+        rank=same;
+        nacompare [shape=diamond];
+        itis [label="ITIS converter",shape=diamond];
+    }
+    //
+    subgraph ala2 {
+        rank=same;
+        spectracker [label="Specimen tracker\nsheet\n[in Processing]",
+                     color=red];
+        npscheck [label="Sheet for\nNPS to check [in 2]",color=green];
+        //invis1 [style=invis,label=""]
+    }
+    //
+    subgraph ala3 {
+        rank=same;
+        notes1 [label="List of pre-existing\ndifferences",style=dashed];
+        notes2 [label="Specimens missing\nin Arctos",style=dashed];
+    }
+    //
+    subgraph ala4 {
+        rank=same;
+        edits1 [label="Edits,\none-by-one",shape=diamond];
+        edits2 [label="Edits,\nbatch",shape=diamond];
+    };
+    //
+    
+    nacompare -> csv2 [dir=back];
+    spectracker -> npscheck;
+    npscheck -> spectracker
+    spectracker -> edits1 [dir=both];
+    spectracker -> edits2 [dir=both];
+    itis -> csv4 [dir=back];
+    //
+    subgraph arctos1 {
+        rank=same
+        csv2 [label="Arctos initial CSV",color=lightblue]
+        csv4 [label="Arctos\nfinal CSV",color=lightblue]
+        csv5 [label="Arctos\nbatch CSV [in 3]",color=lightblue]
+    };
+    edits1 -> arctos ;
+    edits2 -> csv5
+    csv2 -> arctos  [dir=back];
+    csv4 -> arctos  [dir=back];
+    csv5 -> arctos
+    //
+    arctos [label="Arctos", shape=parallelogram, color=lightblue,
+                style=filled];
+    
+/*
+
+*/
+}
+    
