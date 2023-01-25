@@ -73,8 +73,10 @@ function load_data(file, array,     line, fn, i, c, nc) {
     else {
       # normalize catalog numbers, single space only
       gsub(/ +/," ",$c)
-      if (isarray(array[clean($c)]))
-        error("  error: duplicate Catalog # in '" file "' : " clean($c))
+      if (isarray(array[clean($c)])) {
+        # initially this gave error, now just ignores duplicates
+        # error("  error: duplicate Catalog # in '" file "' : " clean($c))
+      }
       for (i = 1; i <= NF ; i++)
         array[clean($c)][fn[i]] = clean($i)
     }
