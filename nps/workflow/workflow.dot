@@ -23,7 +23,10 @@ digraph flow {
     nacompare -> notes2 ;
     notes1 -> spectracker
     notes2 -> spectracker
+    spectracker -> csv2 [dir=back]
     csv3 -> itis [dir=back];
+    npscheck -> arctos [dir=back]
+    npscheck -> edits2
     //
     subgraph ala1 {
         rank=same;

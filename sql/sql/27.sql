@@ -26,17 +26,17 @@ SELECT
     ELSE NULL END
   AS "Accession #",
   -- 3 - Class 1 (fixed)
-  'BIOLOGY' AS "Class 1",
+  -- 'BIOLOGY' AS "Class 1",
   -- 4 - Kingdom (direct)
-  kingdom AS "Kingdom",
+  -- kingdom AS "Kingdom",
   -- 5 - Phylum/Division (direct)
-  phylum AS "Phylum/Division",
+  -- phylum AS "Phylum/Division",
   -- 6 - Class (direct)
-  phylclass AS "Class",
+  -- phylclass AS "Class",
   -- 7 - Order (fixed)
-  phylorder AS "Order",
+  -- phylorder AS "Order",
   -- 8 - Family (fixed)
-  family AS "Family",
+  -- family AS "Family",
   -- 9 - Sci. Name:Genus (split)
   genus AS "Sci. Name:Genus",
   -- 10 - Sci. Name:Species (split)
@@ -47,18 +47,18 @@ SELECT
     AS "Sci. Name:Species",
   -- 11 - Common Name (fixed)
   '' AS "Common Name",
-  -- 12 - TSN (fixed)
+  -- 12 - TSN (fixed) ** New script **
   '' AS "TSN",
   -- 13 - Item Count (direct)
-  1 AS "Item Count",
+  -- 1 AS "Item Count",
   -- 14 - Quantity (fixed)
-  '' AS "Quantity",
+  -- '' AS "Quantity",
   -- 15 - Storage Unit (fixed)
-  'EA' AS "Storage Unit",
+  -- 'EA' AS "Storage Unit",
   -- 16 - Description (fixed)
   CONCAT(species, '; whole organism') AS "Description",
   -- 17 - Dimens/Weight (fixed)
-  '' AS "Dimens/Weight",
+  -- '' AS "Dimens/Weight",
   -- 18 - Collector (transform)
   UPPER(REGEXP_REPLACE(
     REGEXP_REPLACE(
@@ -66,7 +66,7 @@ SELECT
     '[A-Z]\.',''),
     '([^ ]+) +([^ ]+)', '\2, \1'))
     AS "Collector",
-  -- 19 - Collection # (direct)
+  -- 19 - Collection # (direct)  ** edit **
   CASE WHEN othercatalognumbers ~ 'field number='
     THEN REGEXP_REPLACE(othercatalognumbers,
       '^.*field number=([^,]+).*$', '\1')
@@ -74,12 +74,12 @@ SELECT
   AS "Collection #",
   -- 20 - Collection Date (transform)
   TO_CHAR(ended_date::date, 'mm/dd/YYYY') AS "Collection Date",
-  -- 21 - Condition (fixed)
+  -- 21 - Condition (fixed)  **/** use real data
   'COM/GD' AS "Condition",
   -- 22 - Condition Desc (fixed)
-  '' AS "Condition Desc",
+  -- '' AS "Condition Desc",
   -- 23 - Study # (fixed)
-  '' AS "Study #",
+  -- '' AS "Study #",
   -- 24 - Other Numbers (combine)
   CONCAT_WS('', 'Arctos=', guid, 
   CASE WHEN othercatalognumbers ~ 'ALAAC'
@@ -87,13 +87,13 @@ SELECT
       '^.*ALAAC=([ABLV]?[0-9]+).*$', '\1'))
     ELSE NULL END
     ) AS "Other Numbers",
-  -- 25 - Cataloger (transform)
+  -- 25 - Cataloger (transform)  ** only in New records **
   UPPER(REGEXP_REPLACE(
     REGEXP_REPLACE(
       REGEXP_REPLACE(enteredby, ',.*',''),
     '[A-Z]\.',''),
     '([^ ]+) +([^ ]+)', '\2, \1')) AS "Cataloger",
-  -- 26 - Catalog Date (transform)
+  -- 26 - Catalog Date (transform)   ** only in New records **
   TO_CHAR(entereddate::date, 'mm/dd/YYYY') AS "Catalog Date",
   -- 27 - Identified By (direct)
   UPPER(REGEXP_REPLACE(
@@ -104,14 +104,14 @@ SELECT
   -- 28 - Ident Date (transform)
   TO_CHAR(date_made_date::date, 'mm/dd/YYYY') AS "Ident Date",
   -- 29 - Repro Method (fixed)
-  '' AS "Repro Method",
-  -- 30 - Locality (direct)
+  -- '' AS "Repro Method",
+  -- 30 - Locality (direct)  ** ASK **
   verbatim_locality AS "Locality",
   -- 31 - Unit (fixed)
-  '' AS "Unit",
+  -- '' AS "Unit",
   -- 32 - State (fixed)
-  'AK' AS "State",
-  -- 33 - Reference Datum (transform)
+  -- 'AK' AS "State",
+  -- 33 - Reference Datum (transform)   ** NOT FOR NOW **
   CASE
     WHEN datum = 'World Geodetic System 1984' THEN 'WGS 84'
     WHEN datum = 'North American Datum 1927' THEN 'NAD 27'
@@ -119,7 +119,7 @@ SELECT
     ELSE NULL END
   AS "Reference Datum",
   -- 34 - Watrbody/Drain:Waterbody (fixed)
-  '' AS "Watrbody/Drain:Waterbody",
+  -- '' AS "Watrbody/Drain:Waterbody",
   -- 35 - Watrbody/Drain:Drainage (fixed)
   '' AS "Watrbody/Drain:Drainage",
   -- 36 - UTM Z/E/N (fixed)

@@ -55,6 +55,8 @@ function load_data(file, array,     line, fn, i, c, nc) {
   
   while (getline < file) {
     if (!line++) {
+      # Some NPS files have a BOM! Was causing '== "Catalog #"' to fail
+      gsub(/^\xef\xbb\xbf/,"")
       for (i = 1; i <= NF; i++) {
         fn[i] = clean($i)
         if (fn[i] == "Catalog #") {
