@@ -14,11 +14,8 @@ BEGIN{
 function config(  i, t) {
   PROCINFO["sorted_in"] =  "@ind_str_asc"
   OFS = ","
-  split("Catalog #|Accession #|Kingdom|Phylum/Division|Class|Order|Family|" \
-        "Sci. Name:Genus|Sci. Name:Species|Common Name|TSN|Collector|"\
-        "Collection #|Collection Date", Field, "|")
-
-  # Description|Collector|Collection #|Collection Date|Condition|Other Numbers|Cataloger|Catalog Date|Identified By|Ident Date|Locality|Reference Datum|Watrbody/Drain:Drainage|UTM Z/E/N|Lat LongN/W|Elevation|Depth|Depos Environ|Habitat/Comm|Habitat|Slope|Aspect|Soil Type|For/Per/Sub|Assoc Spec|Type Specimen|Threat/Endang|T/E Date|Rare|Exotic/Native|Age|Sex|Notes|Field Season|Ctrl Prop|Location|Object Status|Status Date|Catalog Folder,Maint. Cycle"
+  split("Catalog #,Accession #,Kingdom,Phylum/Division,Class,Order,Family,Sci. Name:Genus,Sci. Name:Species,Common Name,TSN,Description,Collector,Collection #,Collection Date,Condition,Other Numbers,Cataloger,Catalog Date,Identified By,Ident Date,Locality,Lat LongN/W,Elevation,Habitat,Type Specimen,Field Season", \
+        Field, ",")
 }
 
 function read_args(    arg) {

@@ -17,7 +17,7 @@ BEGIN{
   print "loading taxa" > "/dev/stderr"
   
   while (getline < "taxonomic_units") {
-    if ($21 == 3) {
+    if ($21 == 3 || $21 == 4) {
       if ($2)
         xgen[$1] = "×"
       gen[$1] = $3
@@ -55,6 +55,8 @@ BEGIN{
         Class[i] = gen[at]
       if (atrank == "Phylum")
         Phylum[i] = gen[at]
+      if (atrank == "Kingdom")
+        King[i] = gen[at]
     }
   }
 
@@ -68,10 +70,12 @@ BEGIN{
     Fam[i] = Fam[togen[gen[i]]]
     Ord[i] = Ord[togen[gen[i]]]
     Class[i] = Class[togen[gen[i]]]
+    Phylum[i] = Phylum[togen[gen[i]]]
+    King[i] = King[togen[gen[i]]]
   }
   
   for (i in gen)
     if (rank[i] ~ /^(Species|Subspecies|Variety|Subvariety|Form|Subform)$/)
-      print xgen[i], gen[i], xsp[i], sp[i], ir[i], is[i], auth[i], i, acc[i], rank[i], Fam[i], Ord[i], Class[i] , Phylum[i], "Plantae", common[i]
+      print xgen[i], gen[i], xsp[i], sp[i], ir[i], is[i], auth[i], i, acc[i], rank[i], Fam[i], Ord[i], Class[i] , Phylum[i], King[i], common[i]
   
 }
