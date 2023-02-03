@@ -1,4 +1,4 @@
--- Specimens, from a list of NPS Catalog #s, return all fields for export to NPS
+-- Specimens, from a list of NPS Catalog #s, return all fields for nacompare
 
 SELECT
   -- 1 - Catalog # (direct)

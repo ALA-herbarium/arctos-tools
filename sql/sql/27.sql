@@ -28,26 +28,25 @@ SELECT
   -- 3 - Class 1 (fixed)
   -- 'BIOLOGY' AS "Class 1",
   -- 4 - Kingdom (direct)
-  -- kingdom AS "Kingdom",
+  kingdom AS "Kingdom",
   -- 5 - Phylum/Division (direct)
-  -- phylum AS "Phylum/Division",
+  phylum AS "Phylum/Division",
   -- 6 - Class (direct)
-  -- phylclass AS "Class",
+  phylclass AS "Class",
   -- 7 - Order (fixed)
-  -- phylorder AS "Order",
+  phylorder AS "Order",
   -- 8 - Family (fixed)
-  -- family AS "Family",
+  family AS "Family",
   -- 9 - Sci. Name:Genus (split)
   genus AS "Sci. Name:Genus",
   -- 10 - Sci. Name:Species (split)
-  -- CONCAT_WS(' ', species, infraspecific_rank, subspecies)
   CASE WHEN subspecies IS NULL
     THEN REPLACE(species, CONCAT(genus, ' '),'')
     ELSE REPLACE(subspecies, CONCAT(genus, ' '),'') END
     AS "Sci. Name:Species",
   -- 11 - Common Name (fixed)
   '' AS "Common Name",
-  -- 12 - TSN (fixed) ** New script **
+  -- 12 - TSN (fixed)
   '' AS "TSN",
   -- 13 - Item Count (direct)
   -- 1 AS "Item Count",
@@ -60,11 +59,11 @@ SELECT
   -- 17 - Dimens/Weight (fixed)
   -- '' AS "Dimens/Weight",
   -- 18 - Collector (transform)
-  UPPER(REGEXP_REPLACE(
+  REGEXP_REPLACE(
     REGEXP_REPLACE(
       REGEXP_REPLACE(collectors, ',.*',''),
     '[A-Z]\.',''),
-    '([^ ]+) +([^ ]+)', '\2, \1'))
+    '([^ ]+) +([^ ]+)', '\2, \1')
     AS "Collector",
   -- 19 - Collection # (direct)  ** edit **
   CASE WHEN othercatalognumbers ~ 'field number='
