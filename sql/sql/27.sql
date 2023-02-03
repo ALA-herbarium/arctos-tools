@@ -60,10 +60,8 @@ SELECT
   -- '' AS "Dimens/Weight",
   -- 18 - Collector (transform)
   REGEXP_REPLACE(
-    REGEXP_REPLACE(
-      REGEXP_REPLACE(collectors, ',.*',''),
-    '[A-Z]\.',''),
-    '([^ ]+) +([^ ]+)', '\2, \1')
+    REGEXP_REPLACE(collectors, ',.*',''),
+    '^(.*) +([^ ]+)$', '\2, \1')
     AS "Collector",
   -- 19 - Collection # (direct)  ** edit **
   CASE
@@ -95,18 +93,16 @@ SELECT
     ) AS "Other Numbers",
   -- 25 - Cataloger (transform)  ** only in New records **
   REGEXP_REPLACE(
-    REGEXP_REPLACE(
-      REGEXP_REPLACE(enteredby, ',.*',''),
-    '[A-Z]\.',''),
-    '([^ ]+) +([^ ]+)', '\2, \1') AS "Cataloger",
+    REGEXP_REPLACE(enteredby, ',.*',''),
+    '^(.*) +([^ ]+)$', '\2, \1')
+  AS "Cataloger",
   -- 26 - Catalog Date (transform)   ** only in New records **
   TO_CHAR(entereddate::date, 'FMMM/FMDD/YYYY') AS "Catalog Date",
   -- 27 - Identified By (direct)
   REGEXP_REPLACE(
-    REGEXP_REPLACE(
-      REGEXP_REPLACE(identifiedby, ',.*',''),
-    '[A-Z]\.',''),
-    '([^ ]+) +([^ ]+)', '\2, \1') AS "Identified By",
+    REGEXP_REPLACE(identifiedby, ',.*',''),
+    '^(.*) +([^ ]+)$', '\2, \1')
+  AS "Identified By",
   -- 28 - Ident Date (transform)
   TO_CHAR(date_made_date::date, 'FMMM/FMDD/YYYY') AS "Ident Date",
   -- 29 - Repro Method (fixed)
