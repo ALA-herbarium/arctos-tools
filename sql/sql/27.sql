@@ -108,7 +108,7 @@ SELECT
   -- 29 - Repro Method (fixed)
   -- '' AS "Repro Method",
   -- 30 - Locality (direct)
-  verbatim_locality AS "Locality",
+  spec_locality AS "Locality",
   -- 31 - Unit (fixed)
   -- '' AS "Unit",
   -- 32 - State (fixed)
