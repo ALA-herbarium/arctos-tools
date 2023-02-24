@@ -69,6 +69,8 @@ function load_itis(     Instr) {
 function load_arctos(     fn, i) {
   FPAT = "([^,]*)|(\"([^\"]|\"\")+\")"
   while (getline < ARCTOS) {
+    # Some NPS files have a BOM! Was causing '== "Catalog #"' to fail
+    gsub(/^\xef\xbb\xbf/,"")
     # field names
     if (!Line++)
       for (i = 1; i <= NF; i++)
