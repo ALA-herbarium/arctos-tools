@@ -67,7 +67,6 @@ LIMIT 1;
 --   month
 --   day
 --   verbatim_locality *
---   made_date
 --   collectornumber
 --   began_date *
 --   ended_date *
@@ -123,7 +122,8 @@ LIMIT 1;
 --   identification_id
 --   scientific_name *
 --   identifiedby
---   date_made_date
+--   made_date           -- Date of _current_ ID
+--   date_made_date      -- Appears to be date of _first_ det (timestamp)
 --   remarks
 --   taxa_formula
 --   full_taxon_name
