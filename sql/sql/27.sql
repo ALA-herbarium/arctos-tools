@@ -104,7 +104,7 @@ SELECT
     '^(.*) +([^ ]+)$', '\2, \1')
   AS "Identified By",
   -- 28 - Ident Date (transform)
-  TO_CHAR(made_date::date, 'FMMM/FMDD/YYYY') AS "Ident Date",
+  made_date AS "Ident Date",
   -- 29 - Repro Method (fixed)
   -- '' AS "Repro Method",
   -- 30 - Locality (direct)
