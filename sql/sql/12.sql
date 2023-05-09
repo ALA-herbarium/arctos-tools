@@ -13,4 +13,5 @@ SELECT * FROM (
   GROUP BY alaac
 ) AS A
 WHERE A.n > 1
-ORDER BY A.alaac ;
+ORDER BY A.alaac
+;
