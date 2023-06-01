@@ -1,0 +1,51 @@
+<classification>
+  <record>
+    <name>Rubroshorea</name>
+    <source>Arctos Plants</source>
+    <nct n="1" type="author_text">(Meijer) P.S.Ashton &amp; J.Heck.</nct>
+    <nct n="2" type="nomenclatural_code">ICBN</nct>
+    <nct n="3" type="source_authority">IPNI</nct>
+    <nct n="4" type="taxon_status">valid</nct>
+    <ct  n="1" type="kingdom">Plantae</ct>
+    <ct  n="2" type="phylum">Tracheophyta</ct>
+    <ct  n="3" type="class">Magnoliopsida</ct>
+    <ct  n="4" type="order">Theales</ct>
+    <ct  n="5" type="family">Dipterocarpaceae</ct>
+    <ct  n="6" type="genus">Rubroshorea</ct>
+  </record>
+  <record>
+    <name>Rubroshorea acuminata</name>
+    <source>Arctos Plants</source>
+    <nct n="1" type="author_text">(Dyer) P.S.Ashton &amp; J.Heck.</nct>
+    <nct n="2" type="nomenclatural_code">ICBN</nct>
+    <nct n="3" type="source_authority">IPNI</nct>
+    <nct n="4" type="taxon_status">valid</nct>
+    <ct  n="1" type="kingdom">Plantae</ct>
+    <ct  n="2" type="phylum">Tracheophyta</ct>
+    <ct  n="3" type="class">Magnoliopsida</ct>
+    <ct  n="4" type="order">Theales</ct>
+    <ct  n="5" type="family">Dipterocarpaceae</ct>
+    <ct  n="6" type="genus">Rubroshorea</ct>
+    <ct  n="7" type="species">Rubroshorea acuminata</ct>
+  </record>
+</classification>
+
+<!--
+  <record>
+    <name></name>
+    <source>Arctos Plants</source>
+    <nct n="1" type="nomenclatural_code">ICBN</nct>
+    <nct n="2" type="source_authority">IPNI</nct>
+    <nct n="3" type="taxon_status">valid</nct>
+    <nct n="4" type="author_text"></nct>
+    <nct n="4" type="infraspecific_author"></nct>
+    <ct  n="1" type="kingdom">Plantae</ct>
+    <ct  n="2" type="phylum">Tracheophyta</ct>
+    <ct  n="3" type="class">Magnoliopsida</ct>
+    <ct  n="4" type="order"></ct>
+    <ct  n="5" type="family"></ct>
+    <ct  n="6" type="genus"></ct>
+    <ct  n="7" type="species"></ct>
+    <ct  n="8" type="subspecies"></ct>
+    <ct  n="8" type="variety"></ct>
+-->

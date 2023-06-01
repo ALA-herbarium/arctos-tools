@@ -1,0 +1,19 @@
+default namespace = ""
+
+start =
+  element classification {
+    element record {
+      element name { text },
+      element source { text },
+      element nct {
+        attribute n { xsd:integer },
+        attribute type { xsd:NCName },
+        text
+      }+,
+      element ct {
+        attribute n { xsd:integer },
+        attribute type { xsd:NCName },
+        text
+      }+
+    }+
+  }
