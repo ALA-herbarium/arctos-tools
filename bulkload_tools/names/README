@@ -1,6 +1,0 @@
-
-xqilla -i classification.xml class2names.xq > name.csv 
-
-xqilla -i classification.xml class2csv.xq > class.csv 
-
-Don't forget to convert to Mac before uploading.
