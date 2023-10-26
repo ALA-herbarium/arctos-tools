@@ -1,4 +1,4 @@
--- Different stages of digitization at ALA, for N, Central and S Amercia 
+-- Digitization progress, for N, Central and S Amercia 
 -- https://gist.github.com/camwebb/62656cdca4c5b789256debda196cc7e6
 
 SELECT z.genus,

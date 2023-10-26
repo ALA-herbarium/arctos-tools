@@ -1,11 +1,11 @@
--- Specimens, photos but no transcribed data, return GUID and Media URL
+-- Specimens, photos but no transcribed data, return GUID, barcode, Media URL
 
 SELECT
  flat.guid,
  media_flat.media_uri,
  CASE WHEN othercatalognumbers ~ 'ALAAC'
    THEN REGEXP_REPLACE(othercatalognumbers,
-      '^.*ALAAC=([ABLV]?[0-9]+).*$', '\1')
+      '^.*ALAAC ([ABLV]?[0-9]+).*$', '\1')
    ELSE NULL END
  AS ALAAC,
  (partdetail::json->>0)::json->>'bc' AS barcode
