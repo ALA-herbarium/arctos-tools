@@ -1,4 +1,4 @@
--- Digitization progress, by phylum, by time period of date entered
+-- Digitization progress, by phylum, by time period of date entered (see also 41.sql)
 
 SELECT taxon, photo, geo, count(*) from (
   SELECT

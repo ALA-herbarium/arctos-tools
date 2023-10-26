@@ -1,4 +1,4 @@
--- Specimen count, within time range, for taxonomic class, summarized for different levels of digitization
+-- Specimen count, within time range, for taxonomic class, summarized for different levels of digitization (depreciated, see 40.sql)
 
 SELECT
   a.x as "no photo, no locn", 
