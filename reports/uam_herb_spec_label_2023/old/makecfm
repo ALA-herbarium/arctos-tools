@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo "<cfquery name=\"d\" datasource=\"user_login\" username=\"#session.dbuser#\" password=\"#decrypt(session.epw,session.sessionKey,'AES/CBC/PKCS5Padding','hex')#\">" > report.cfm
+
+cat report.sql >> report.cfm
+
+echo "</cfquery>
+<cfif debug is true>
+  <cfdump var=#d#>
+</cfif>
+<div class=\"wrapper\">
+  <cfloop query=\"d\">" >> report.cfm
+
+cat report.html | head -n -3 | tail -n +8 >> report.cfm
+
+echo "  </cfloop>
+</div>" >> report.cfm
+

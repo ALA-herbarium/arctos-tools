@@ -3,6 +3,7 @@
 function usage () {
     echo "Usage:"
     echo "  export ARCTOS_CFID=\"...\""
+    echo "  export ARCTOS_NOHEADER=1 (opt)"
     echo "  sql \"SELECT ...\" | -f Q.sql [ optional_arg ]"
     exit
 }
@@ -47,8 +48,17 @@ else
     usage
 fi
 
-#echo $SQL
+echo $SQL
 #exit
+
+# function tail1 () {
+#     if [ -z $ARCTOS_NOHEADER ]
+#     then
+#         tail -n +2
+#     else
+#         cat
+#     fi
+# }
 
 curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' \
      -H "Cookie: cfid=$ARCTOS_CFID; cftoken=0" \
@@ -56,4 +66,6 @@ curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' \
      --data 'format=csv' \
      --data-urlencode "sqltxt=$SQL" \
     | ~/bin/csv2psv
+# | tail1
+
 
