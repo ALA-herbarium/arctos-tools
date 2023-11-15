@@ -3,12 +3,15 @@
  * **Admin**
     * Admin, most active days and table edits, list, sort by number of specimens updated [[07.sql](sql/07.sql)]
     * Admin, recent edits to specimens, list, for username (Q1) [[05.sql](sql/05.sql)]
+    * Admin, recent edits to specimens, summarize bu user and guid [[43.sql](sql/43.sql)]
  * **Barcode**
     * Barcode, and container, query on catalog number [[09.sql](sql/09.sql)]
  * **Containers**
     * Containers [[36.sql](sql/36.sql)]
- * **Different stages of digitization at ALA**
-    * Different stages of digitization at ALA, for N, Central and S Amercia  [[11.sql](sql/11.sql)]
+ * **Digitization progress**
+    * Digitization progress, by phylum, by time period of date entered (see also 41.sql) [[40.sql](sql/40.sql)]
+    * Digitization progress, by phylum, by time period of new media added (see also 40.sql) [[41.sql](sql/41.sql)]
+    * Digitization progress, for N, Central and S Amercia  [[11.sql](sql/11.sql)]
  * **Duplicate entries for single specimen**
     * Duplicate entries for single specimen, by ALAAC [[12.sql](sql/12.sql)]
     * Duplicate entries for single specimen, by ALAAC, showing some fields [[33.sql](sql/33.sql)]
@@ -36,9 +39,11 @@
     * Specimen count, no geographic information at all [[30.sql](sql/30.sql)]
     * Specimen count, per genus, per continent (for Trees TCN, Feb 2022) [[22.sql](sql/22.sql)]
     * Specimen count, within time range, for taxonomic class [[20.sql](sql/20.sql)]
-    * Specimen count, within time range, for taxonomic class, summarized for different levels of digitization [[21.sql](sql/21.sql)]
+    * Specimen count, within time range, for taxonomic class, summarized for different levels of digitization (depreciated, see 40.sql) [[21.sql](sql/21.sql)]
  * **Specimen details from a list of GUIDs**
     * Specimen details from a list of GUIDs [[10.sql](sql/10.sql)]
+ * **Specimen label**
+    * Specimen label, legacy ala_Label [[42.sql](sql/42.sql)]
  * **Specimens**
     * Specimens, all NPS specimens, listing key data [[15.sql](sql/15.sql)]
     * Specimens, all, for an accession, key identifier fields [[13.sql](sql/13.sql)]
