@@ -16,6 +16,8 @@
     * Duplicate entries for single specimen, by ALAAC [[12.sql](sql/12.sql)]
     * Duplicate entries for single specimen, by ALAAC, showing some fields [[33.sql](sql/33.sql)]
     * Duplicate entries for single specimen, by Barcode [[34.sql](sql/34.sql)]
+ * **GLOBAL TCN status**
+    * GLOBAL TCN status [[45.sql](sql/45.sql)]
  * **GUID**
     * GUID, find from barcode in media URL [[38.sql](sql/38.sql)]
  * **Identifications**
@@ -33,6 +35,9 @@
     * Localities, list, sort by most specimens, UAMb:Herb [[04b.sql](sql/04b.sql)]
  * **Media**
     * Media, all, with barcode and Guid [[35.sql](sql/35.sql)]
+ * **Scientific names**
+    * Scientific names, without any classification elements [[48.sql](sql/48.sql)]
+    * Scientific names, without classification elements, tested via family [[46.sql](sql/46.sql)]
  * **Specimen count**
     * Specimen count, by Herb sub-collection [[01.sql](sql/01.sql)]
     * Specimen count, in Asia, with locality but not georeferenced [[31.sql](sql/31.sql)]
@@ -47,12 +52,14 @@
  * **Specimens**
     * Specimens, all NPS specimens, listing key data [[15.sql](sql/15.sql)]
     * Specimens, all, for an accession, key identifier fields [[13.sql](sql/13.sql)]
+    * Specimens, all, summary of key data elements for ALA barcode checker [[44.sql](sql/44.sql)]
     * Specimens, broad search by park including park name and geography [[18.sql](sql/18.sql)]
     * Specimens, for list of GUIDs, show barcodes [[24.sql](sql/24.sql)]
     * Specimens, from a list of ALAAC/GUID numbers, return primary info fields [[14.sql](sql/14.sql)]
     * Specimens, from a list of GUID numbers, return all fields for export to NPS [[27.sql](sql/27.sql)]
     * Specimens, from a list of GUID numbers, return fields for NPS checking [[23.sql](sql/23.sql)]
     * Specimens, from a list of NPS Catalog #s, return all fields for nacompare [[29.sql](sql/29.sql)]
+    * Specimens, list bryophytes with photos, but needing transcription [[47.sql](sql/47.sql)]
     * Specimens, photos but no transcribed data, return GUID, barcode, Media URL [[19.sql](sql/19.sql)]
     * Specimens, query on barcode [[16.sql](sql/16.sql)]
     * Specimens, total count, for time period, from Russia [[28.sql](sql/28.sql)]
