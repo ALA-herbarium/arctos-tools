@@ -21,8 +21,10 @@ digraph flow {
     csv1 -> spectracker ;
     nacompare -> notes1
     nacompare -> notes2 ;
+    nacompare -> notes3 ;
     notes1 -> spectracker
     notes2 -> spectracker
+    notes3 -> spectracker
     spectracker -> csv2 [dir=back]
     csv3 -> itis [dir=back];
     npscheck -> arctos [dir=back]
@@ -44,8 +46,9 @@ digraph flow {
     //
     subgraph ala3 {
         rank=same;
-        notes1 [label="List of pre-existing\ndifferences",style=dashed];
-        notes2 [label="Specimens missing\nin Arctos",style=dashed];
+        notes1 [label="List of\npre-existing\ndifferences",style=dashed];
+        notes2 [label="Specimens\nmissing\nin Arctos",style=dashed];
+        notes3 [label="Spatial\nArctos\nsearch",style=dashed];
     }
     //
     subgraph ala4 {
