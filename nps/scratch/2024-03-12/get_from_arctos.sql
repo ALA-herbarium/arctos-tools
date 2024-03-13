@@ -23,14 +23,10 @@ SELECT
   -- 8 - Family (fixed)
   flat.family AS "Family",
   -- 9 - Sci. Name:Genus (split)
-  -- TODO: create from sci name...
-  REGEXP_REPLACE(flat.scientific_name, ' +[^ ]+.*$','')
+  REGEXP_REPLACE(flat.scientific_name, ' +.*$','')
     AS "Sci. Name:Genus",
   -- 10 - Sci. Name:Species (split)
   REGEXP_REPLACE(flat.scientific_name, '^[^ ]+ +','')
-  -- CASE WHEN flat.subspecies IS NULL
-  --   THEN REPLACE(flat.species, CONCAT(flat.genus, ' '),'')
-  --   ELSE REPLACE(flat.subspecies, CONCAT(flat.genus, ' '),'') END
     AS "Sci. Name:Species",
   -- 11 - Common Name (fixed)
   '' AS "Common Name",
@@ -226,36 +222,37 @@ ON N.collection_object_id = ID.collection_object_id
   AND ID.other_id_type = 'identifier'
 
 -- Collector names, via collector table
-LEFT JOIN collector AS COL
-ON N.collection_object_id = COL.collection_object_id
 -- Collector 1
+LEFT JOIN collector AS COL1
+ON N.collection_object_id = COL1.collection_object_id AND COL1.coll_order = 1
 LEFT JOIN agent_attribute AS COL1L
-ON COL.agent_id = COL1L.agent_id
-  AND COL.coll_order = 1 AND COL1L.attribute_type = 'last name'
+ON COL1.agent_id = COL1L.agent_id AND COL1L.attribute_type = 'last name'
 LEFT JOIN agent_attribute AS COL1F
-ON COL.agent_id = COL1F.agent_id
-  AND COL.coll_order = 1 AND COL1F.attribute_type = 'first name'
+ON COL1.agent_id = COL1F.agent_id AND COL1F.attribute_type = 'first name'
+
 -- Collector 2
+LEFT JOIN collector AS COL2
+ON N.collection_object_id = COL2.collection_object_id AND COL2.coll_order = 2
 LEFT JOIN agent_attribute AS COL2L
-ON COL.agent_id = COL2L.agent_id
-  AND COL.coll_order = 2 AND COL2L.attribute_type = 'last name'
+ON COL2.agent_id = COL2L.agent_id AND COL2L.attribute_type = 'last name'
 LEFT JOIN agent_attribute AS COL2F
-ON COL.agent_id = COL2F.agent_id
-  AND COL.coll_order = 2 AND COL2F.attribute_type = 'first name'
+ON COL2.agent_id = COL2F.agent_id AND COL2F.attribute_type = 'first name'
+
 -- Collector 3
+LEFT JOIN collector AS COL3
+ON N.collection_object_id = COL3.collection_object_id AND COL3.coll_order = 3
 LEFT JOIN agent_attribute AS COL3L
-ON COL.agent_id = COL3L.agent_id
-  AND COL.coll_order = 3 AND COL3L.attribute_type = 'last name'
+ON COL3.agent_id = COL3L.agent_id AND COL3L.attribute_type = 'last name'
 LEFT JOIN agent_attribute AS COL3F
-ON COL.agent_id = COL3F.agent_id
-  AND COL.coll_order = 3 AND COL3F.attribute_type = 'first name'
+ON COL3.agent_id = COL3F.agent_id AND COL3F.attribute_type = 'first name'
+
 -- Collector 4
+LEFT JOIN collector AS COL4
+ON N.collection_object_id = COL4.collection_object_id AND COL4.coll_order = 4
 LEFT JOIN agent_attribute AS COL4L
-ON COL.agent_id = COL4L.agent_id
-  AND COL.coll_order = 4 AND COL4L.attribute_type = 'last name'
+ON COL4.agent_id = COL4L.agent_id AND COL4L.attribute_type = 'last name'
 LEFT JOIN agent_attribute AS COL4F
-ON COL.agent_id = COL4F.agent_id
-  AND COL.coll_order = 4 AND COL4F.attribute_type = 'first name'
+ON COL4.agent_id = COL4F.agent_id AND COL4F.attribute_type = 'first name'
 
 -- Entered by person, via coll_object
 LEFT JOIN cataloged_item AS COLLOBJ
