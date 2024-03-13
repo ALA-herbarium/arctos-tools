@@ -23,11 +23,14 @@ SELECT
   -- 8 - Family (fixed)
   flat.family AS "Family",
   -- 9 - Sci. Name:Genus (split)
-  flat.genus AS "Sci. Name:Genus",
+  -- TODO: create from sci name...
+  REGEXP_REPLACE(flat.scientific_name, ' +[^ ]+.*$','')
+    AS "Sci. Name:Genus",
   -- 10 - Sci. Name:Species (split)
-  CASE WHEN flat.subspecies IS NULL
-    THEN REPLACE(flat.species, CONCAT(flat.genus, ' '),'')
-    ELSE REPLACE(flat.subspecies, CONCAT(flat.genus, ' '),'') END
+  REGEXP_REPLACE(flat.scientific_name, '^[^ ]+ +','')
+  -- CASE WHEN flat.subspecies IS NULL
+  --   THEN REPLACE(flat.species, CONCAT(flat.genus, ' '),'')
+  --   ELSE REPLACE(flat.subspecies, CONCAT(flat.genus, ' '),'') END
     AS "Sci. Name:Species",
   -- 11 - Common Name (fixed)
   '' AS "Common Name",
@@ -40,7 +43,8 @@ SELECT
   -- 15 - Storage Unit (fixed)
   'EA' AS "Storage Unit",
   -- 16 - Description (fixed)
-  CONCAT(flat.scientific_name, '  vascular plant specimens moun') AS "Description",
+  CONCAT(flat.scientific_name,
+    '  vascular plant specimens mounted on herbarium sheet') AS "Description",
   -- 17 - Dimens/Weight (fixed)
   '' AS "Dimens/Weight",
   -- 18 - Collector (transform)
@@ -81,7 +85,11 @@ SELECT
   TO_CHAR(entereddate::date, 'FMMM/FMDD/YYYY')
     AS "Catalog Date",
   -- 27 - Identified By (direct)
-  CONCAT_WS(', ', IDENTL.attribute_value, IDENTF.attribute_value)
+  -- TODO: add middle initial
+  CASE
+    WHEN IDENTL.attribute_value IS NOT NULL
+    THEN CONCAT_WS(', ', IDENTL.attribute_value, IDENTF.attribute_value)
+    ELSE 'Not provided' END
     AS "Identified By",
   -- 28 - Ident Date (transform)
   -- TO_CHAR(flat.made_date::date, 'FMMM/FMDD/YYYY') AS "Ident Date",
@@ -116,7 +124,7 @@ SELECT
   -- 36 - UTM Z/E/N (fixed)
   '' AS "UTM Z/E/N",
   -- 37 - Lat LongN/W (combine)
-  CONCAT_WS('', 'N', dec_lat, '/W',  REPLACE(flat.dec_long::varchar,'-',''))
+  CONCAT_WS('', dec_lat, 'N/',  REPLACE(flat.dec_long::varchar,'-',''),'W')
     AS "Lat LongN/W",
   -- 38 - Elevation (transform)
   CASE WHEN flat.max_elev_in_m IS NOT NULL
