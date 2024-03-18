@@ -10,6 +10,7 @@ SELECT
     WHEN ID.display_value IS NOT NULL THEN ID.display_value
     ELSE NULL END
   AS collector_code,
+  scientific_name,
   guid
 -- Lead key: NPS catalog
 FROM coll_obj_other_id_num AS N
