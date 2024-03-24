@@ -1,0 +1,146 @@
+#!/usr/bin/gawk -E
+
+# See https://arctos.database.museum/info/api.cfm
+
+@load "json"
+@include "arctos_pw.awk"
+
+BEGIN{
+  config()
+  read_args()
+  
+  if (FUNC == "sql")
+    usersql()
+  exit 0
+  
+  METHOD = "getCatalogData" # "about"
+  QUERY = "&queryformat=struct&guid=UAM:Herb:100000" \
+    "&COLS=guid,media,scientific_name"
+  RAW = 0
+  api()
+
+  for (i in Data["DATA"]) {
+    for (j in Data["DATA"][i])
+      print j " : " Data["DATA"][i][j]
+    if (Data["DATA"][i]["media"]) {
+      json::from_json(Data["DATA"][i]["media"], Media)
+      for (k in Media)
+        if (Media[k]["MT"] == "image/jpeg") {
+          print "  > " Media[k]["MU"]
+          system("firefox " Media[k]["MU"])
+        }
+    }
+  }
+}
+
+function read_args(    arg) {
+  # Defaults
+  
+  for (arg = 1; arg < ARGC; arg++) {
+    if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
+    else if (ARGV[arg] == "-s"    )  SQL    = ARGV[++arg]
+    else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
+    else if (ARGV[arg] ~ "^(sql)$")  FUNC   = ARGV[arg]  
+  }
+
+  # checks
+  if (FUNC == sql) {
+    if (SQL && FILE)
+      err("both commandline SQL and SQL file given")
+    else if (!SQL && !FILE)
+      err("neither commandline SQL nor SQL file given")
+  }
+}
+
+function config() {
+  RS="\x04";
+  PROCINFO["sorted_in"] = "@ind_num_asc"
+  OFS= "|"
+  api_key()
+}
+
+function api(    cmd, json) {
+  # "--header 'Accept-Encoding: gzip' "
+  cmd = "curl -s --header 'Accept: application/json' "           \
+    "'https://arctos.database.museum/component/api/v2/catalog.cfc?" \
+    "api_key=" API_KEY                                              \
+    "&method=" METHOD  QUERY                                        \
+    "'" #  | gunzip -c"
+  # print cmd ; exit
+  cmd | getline json 
+  close(cmd)
+  
+  if (! json::from_json(json, Data)) {
+    print "JSON import failed!" > "/dev/stderr"
+    exit 1
+  }
+
+  if (RAW) {
+    print json
+    walk_array(Data, "Data")
+    exit 0
+  }
+}
+
+# from https://www.gnu.org/software/gawk/manual/html_node/Walking-Arrays.html#Walking-Arrays
+function walk_array(arr, name,      i)  {
+  for (i in arr) {
+    if (isarray(arr[i]))
+      if (i ~ /^[0-9]+$/)
+        walk_array(arr[i], (name "[" i "]"))
+      else
+        walk_array(arr[i], (name "[\"" i "\"]"))
+    else
+      if (i ~ /^[0-9]+$/)
+        printf("%s[%s] = %s\n", name, i, arr[i])
+      else
+        printf("%s[\"%s\"] = %s\n", name, i, arr[i])
+  }
+}
+
+function usersql(    cmd) {
+
+  if (!ENVIRON["ARCTOS_CFID"])
+    err("Set ARCTOS_CFID shell variable first (e.g., export ARCTOS_CFID=...)")
+  
+  if (FILE) {
+    while (getline < FILE)
+      SQL = $0
+  }
+
+  if (SQL !~ /(SELECT|select)/)
+    err("SQL statement must contain one or more SELECT statement")
+  
+  cmd = "curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' " \
+    "-H 'Cookie: cfid=" ENVIRON["ARCTOS_CFID"] "; cftoken=0' "          \
+    "--data 'action=run' "                                              \
+    "--data 'format=csv' "                                              \
+    "--data-urlencode \"sqltxt=" SQL "\""
+  cmd | getline csv
+  csv2psv(csv)
+}
+
+function err(msg) {
+  print "ERROR: " msg > "/dev/stderr"
+  exit 1
+}
+
+function csv2psv(csv,    line, lines, field, fields, i, j) {
+  lines = split(csv, line, "\r?\n")
+  for (i = 1; i <= lines; i++) {
+    fields = patsplit(line[i], field, "([^,]*)|(\"([^\"]|\"\")+\")")
+    for (j = 1; j < fields; j++)
+      printf "%s|", csvclean(field[j])
+    printf "%s\n", csvclean(field[fields])
+  }
+}
+
+function csvclean(t) {
+  gsub(/^"/,"",t)
+  gsub(/"$/,"",t)
+  gsub(/""/,"\"",t)
+  gsub(/\|/,"{PIPE}",t)
+  return t
+}
+
+  
