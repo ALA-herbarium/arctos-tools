@@ -10,27 +10,34 @@ BEGIN{
   read_args()
   
   if (FUNC == "sql")
-    usersql()
+    sql("user")
+  else if (FUNC == "about_api")
+    about_api()
+  else if (FUNC == "alaac")
+    alaac()
+  else
+    exit 1
+
   exit 0
   
-  METHOD = "getCatalogData" # "about"
-  QUERY = "&queryformat=struct&guid=UAM:Herb:100000" \
-    "&COLS=guid,media,scientific_name"
-  RAW = 0
-  api()
+  # METHOD = "getCatalogData" # "about"
+  # QUERY = "&queryformat=struct&guid=UAM:Herb:100000" \
+  #   "&COLS=guid,media,scientific_name"
+  # RAW = 0
+  # api()
 
-  for (i in Data["DATA"]) {
-    for (j in Data["DATA"][i])
-      print j " : " Data["DATA"][i][j]
-    if (Data["DATA"][i]["media"]) {
-      json::from_json(Data["DATA"][i]["media"], Media)
-      for (k in Media)
-        if (Media[k]["MT"] == "image/jpeg") {
-          print "  > " Media[k]["MU"]
-          system("firefox " Media[k]["MU"])
-        }
-    }
-  }
+  # for (i in Data["DATA"]) {
+  #   for (j in Data["DATA"][i])
+  #     print j " : " Data["DATA"][i][j]
+  #   if (Data["DATA"][i]["media"]) {
+  #     json::from_json(Data["DATA"][i]["media"], Media)
+  #     for (k in Media)
+  #       if (Media[k]["MT"] == "image/jpeg") {
+  #         print "  > " Media[k]["MU"]
+  #         system("firefox " Media[k]["MU"])
+  #       }
+  #   }
+  # }
 }
 
 function read_args(    arg) {
@@ -38,17 +45,19 @@ function read_args(    arg) {
   
   for (arg = 1; arg < ARGC; arg++) {
     if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
-    else if (ARGV[arg] == "-s"    )  SQL    = ARGV[++arg]
+    else if (ARGV[arg] == "-d"    )  INLINE    = ARGV[++arg]
     else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
-    else if (ARGV[arg] ~ "^(sql)$")  FUNC   = ARGV[arg]  
+    else if (ARGV[arg] ~ "^(sql|about_api|alaac)$")  FUNC   = ARGV[arg]
+    else if (ARGV[arg] == "-r"    )  RAW = 1 
+    else if (ARGV[arg] == "-c"    )  CURL = 1 
   }
 
   # checks
-  if (FUNC == sql) {
-    if (SQL && FILE)
-      err("both commandline SQL and SQL file given")
-    else if (!SQL && !FILE)
-      err("neither commandline SQL nor SQL file given")
+  if (FUNC ~ /^(sql|alaac)$/) {
+    if (INLINE && FILE)
+      err("both commandline data/sql and file given")
+    else if (!INLINE && !FILE)
+      err("neither commandline data/sql nor file given")
   }
 }
 
@@ -59,16 +68,23 @@ function config() {
   api_key()
 }
 
-function api(    cmd, json) {
+function api(     cmd, json, i) {
   # "--header 'Accept-Encoding: gzip' "
-  cmd = "curl -s --header 'Accept: application/json' "           \
-    "'https://arctos.database.museum/component/api/v2/catalog.cfc?" \
-    "api_key=" API_KEY                                              \
-    "&method=" METHOD  QUERY                                        \
-    "'" #  | gunzip -c"
-  # print cmd ; exit
+  cmd = "curl -s --header 'Accept: application/json' "               \
+    "'https://arctos.database.museum/component/api/v2/catalog.cfc' " \
+    "--data 'api_key=" API_KEY "' "
+  for (i in Q)
+    cmd = cmd "--data '" i "=" Q[i] "' "
+  
+  if (CURL) {
+    print cmd
+    exit 0
+  }
   cmd | getline json 
   close(cmd)
+
+  if (RAW)
+    print json
   
   if (! json::from_json(json, Data)) {
     print "JSON import failed!" > "/dev/stderr"
@@ -76,14 +92,14 @@ function api(    cmd, json) {
   }
 
   if (RAW) {
-    print json
     walk_array(Data, "Data")
     exit 0
   }
 }
 
-# from https://www.gnu.org/software/gawk/manual/html_node/Walking-Arrays.html#Walking-Arrays
 function walk_array(arr, name,      i)  {
+  # from https://www.gnu.org/software/gawk/manual/html_node/
+  #              Walking-Arrays.html#Walking-Arrays
   for (i in arr) {
     if (isarray(arr[i]))
       if (i ~ /^[0-9]+$/)
@@ -98,24 +114,33 @@ function walk_array(arr, name,      i)  {
   }
 }
 
-function usersql(    cmd) {
+function sql(sqlin,    cmd) {
 
   if (!ENVIRON["ARCTOS_CFID"])
-    err("Set ARCTOS_CFID shell variable first (e.g., export ARCTOS_CFID=...)")
-  
-  if (FILE) {
-    while (getline < FILE)
-      SQL = $0
-  }
+    err("Set ARCTOS_CFID shell variable first: `export ARCTOS_CFID=...`")
 
-  if (SQL !~ /(SELECT|select)/)
-    err("SQL statement must contain one or more SELECT statement")
+  if (sqlin == "user") {
+    if (FILE)
+      while (getline < FILE)
+        sqlin = $0
+    else
+      sqlin = INLINE
+  }
   
+  if (sqlin !~ /(SELECT|select)/)
+    err("SQL statement must contain one or more SELECT statement")
+
   cmd = "curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' " \
     "-H 'Cookie: cfid=" ENVIRON["ARCTOS_CFID"] "; cftoken=0' "          \
     "--data 'action=run' "                                              \
     "--data 'format=csv' "                                              \
-    "--data-urlencode \"sqltxt=" SQL "\""
+    "--data-urlencode \"sqltxt=" sqlin "\""
+
+  if (CURL) {
+    print cmd
+    exit 0
+  }
+
   cmd | getline csv
   csv2psv(csv)
 }
@@ -142,5 +167,98 @@ function csvclean(t) {
   gsub(/\|/,"{PIPE}",t)
   return t
 }
-
   
+function about_api() {
+  Q["method"] = "about"
+  api()
+  walk_array(Data, "Data")
+}
+
+function uniq(idtype,       id, list, tmp, i, j, alaac) {
+  # create query list 'list' and identifer array 'id'
+  if (FILE) {
+    RS="\n"
+    while (getline < FILE) {
+      id[$0]
+      list = list $0 ","
+    }
+    gsub(/,$/,"",list)
+    RS="\x04";
+  }
+  else {
+    list = INLINE
+    split(list,tmp,",")
+    for (i in tmp)
+      id[tmp[i]]
+  }
+  
+  Q["method"] = "getCatalogData"
+  Q["oidtype"] = idtype
+  Q["oidnum"] = list
+  Q["COLS"] = "guid,othercatalognumbers,description"
+  api()
+
+  # parse results
+  for (i in Data["DATA"]["DATA"]) {
+    alaac = gensub(/.*ALAAC ([VLBA]?[0-9]+).*/,"\\1","G",   \
+                   Data["DATA"]["DATA"][i][3])
+    id2guid[alaac][length(id2guid[alaac])+1] = Data["DATA"]["DATA"][i][2]
+  }
+
+  # output
+  for (i in id) {
+    printf "%s|", i
+    if(i in id2guid) {
+      printf "%s|", id2guid[i][1]
+      if (length(id2guid[i])>1)
+        for (j = 2; j <= length(id2guid[i]); j++)
+          printf "%s;", id2guid[i][j]
+    }
+    else
+      printf "|"
+    
+    printf "\n"
+  }
+  exit 0
+}
+
+function alaac() {
+  
+  sql("SELECT coll_obj_other_id_num.display_value AS alaac, "\
+      "  STRING_AGG(guid,',') AS guid "\
+      "FROM flat, coll_obj_other_id_num "\
+      "WHERE flat.collection_object_id = "\
+      "    coll_obj_other_id_num.collection_object_id "\
+      "  AND coll_obj_other_id_num.other_id_type = 'ALAAC' "\
+      "  AND display_value IN (" idlist("sql") ") "\
+      "GROUP BY display_value "\
+      "ORDER BY alaac;")
+}
+
+
+function idlist(method,     list) {  
+  # create query list 'list' and identifer array 'id'
+  if (FILE) {
+    RS="\n"
+    while (getline < FILE) {
+      Id[$0]
+      if (method == "sql")
+        list = list "'" $0 "',"
+      else
+        list = list $0 ","
+    }
+    gsub(/,$/,"",list)
+    RS="\x04";
+  }
+  else {
+    split(INLINE,tmp,",")
+    for (i in tmp)
+      Id[tmp[i]]
+    
+    if (method == "sql")
+      list = "'" gensub(/,/,"','", "G", INLINE) "'"
+    else
+      list = INLINE
+  }
+  return list
+}
