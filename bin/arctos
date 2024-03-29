@@ -13,8 +13,10 @@ BEGIN{
     sql("user")
   else if (FUNC == "about_api")
     about_api()
-  else if (FUNC == "alaac")
-    alaac()
+  else if (FUNC == "alaac2guid")
+    alaac2guid()
+  else if (FUNC == "guid2alaac")
+    guid2alaac()
   else
     exit 1
 
@@ -47,7 +49,8 @@ function read_args(    arg) {
     if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
     else if (ARGV[arg] == "-d"    )  INLINE    = ARGV[++arg]
     else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
-    else if (ARGV[arg] ~ "^(sql|about_api|alaac)$")  FUNC   = ARGV[arg]
+    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac)$")
+      FUNC   = ARGV[arg]
     else if (ARGV[arg] == "-r"    )  RAW = 1 
     else if (ARGV[arg] == "-c"    )  CURL = 1 
   }
@@ -116,8 +119,10 @@ function walk_array(arr, name,      i)  {
 
 function sql(sqlin,    cmd) {
 
-  if (!ENVIRON["ARCTOS_CFID"])
-    err("Set ARCTOS_CFID shell variable first: `export ARCTOS_CFID=...`")
+  # if (!ENVIRON["ARCTOS_CFID"])
+  #   err("Set ARCTOS_CFID shell variable first: `export ARCTOS_CFID=...`")
+  if (!CFID)
+    err("Set CFID in arctos_pw.awk first; read it using browser's Inspector")
 
   if (sqlin == "user") {
     if (FILE)
@@ -131,7 +136,7 @@ function sql(sqlin,    cmd) {
     err("SQL statement must contain one or more SELECT statement")
 
   cmd = "curl -s -L 'https://arctos.database.museum/tools/userSQL.cfm' " \
-    "-H 'Cookie: cfid=" ENVIRON["ARCTOS_CFID"] "; cftoken=0' "          \
+    "-H 'Cookie: cfid=" CFID "; cftoken=0' "          \
     "--data 'action=run' "                                              \
     "--data 'format=csv' "                                              \
     "--data-urlencode \"sqltxt=" sqlin "\""
@@ -142,7 +147,8 @@ function sql(sqlin,    cmd) {
   }
 
   cmd | getline csv
-  csv2psv(csv)
+  # csv2psv(csv)
+  csv2data(csv)
 }
 
 function err(msg) {
@@ -157,6 +163,16 @@ function csv2psv(csv,    line, lines, field, fields, i, j) {
     for (j = 1; j < fields; j++)
       printf "%s|", csvclean(field[j])
     printf "%s\n", csvclean(field[fields])
+  }
+}
+
+function csv2data(csv,    line, lines, field, fields, i, j) {
+  delete Sqldata
+  lines = split(csv, line, "\r?\n")
+  for (i = 1; i <= lines; i++) {
+    fields = patsplit(line[i], field, "([^,]*)|(\"([^\"]|\"\")+\")")
+    for (j = 1; j <= fields; j++)
+      Sqldata[i][j] = csvclean(field[j])
   }
 }
 
@@ -222,7 +238,7 @@ function uniq(idtype,       id, list, tmp, i, j, alaac) {
   exit 0
 }
 
-function alaac() {
+function alaac2guid() {
   
   sql("SELECT coll_obj_other_id_num.display_value AS alaac, "\
       "  STRING_AGG(guid,',') AS guid "\
@@ -233,6 +249,41 @@ function alaac() {
       "  AND display_value IN (" idlist("sql") ") "\
       "GROUP BY display_value "\
       "ORDER BY alaac;")
+  for (i in Id) {
+    found = 0
+    for (j in Sqldata)
+      if (i == Sqldata[j][1]) {
+        print i "|" Sqldata[j][2]
+        found = 1
+        break
+      }
+    if (!found)
+      print i "|"
+  }
+}
+
+function guid2alaac() {
+  
+  sql("SELECT guid, "\
+      "  STRING_AGG(coll_obj_other_id_num.display_value,',') AS ALAAC "\
+      "FROM flat, coll_obj_other_id_num "\
+      "WHERE flat.collection_object_id = "\
+      "    coll_obj_other_id_num.collection_object_id "\
+      "  AND coll_obj_other_id_num.other_id_type = 'ALAAC' "\
+      "  AND guid IN (" idlist("sql") ") "\
+      "GROUP BY guid "                    \
+      "ORDER BY guid;")
+  for (i in Id) {
+    found = 0
+    for (j in Sqldata)
+      if (i == Sqldata[j][1]) {
+        print i "|" Sqldata[j][2]
+        found = 1
+        break
+      }
+    if (!found)
+      print i "|"
+  }
 }
 
 
@@ -241,6 +292,8 @@ function idlist(method,     list) {
   if (FILE) {
     RS="\n"
     while (getline < FILE) {
+      if ($0 in Id)
+        err("Key: '" $0 "' a duplicate") 
       Id[$0]
       if (method == "sql")
         list = list "'" $0 "',"
@@ -252,9 +305,11 @@ function idlist(method,     list) {
   }
   else {
     split(INLINE,tmp,",")
-    for (i in tmp)
+    for (i in tmp) {
+      if (tmp[i] in Id)
+        err("Key: '" tmp[i] "' a duplicate") 
       Id[tmp[i]]
-    
+    }
     if (method == "sql")
       list = "'" gensub(/,/,"','", "G", INLINE) "'"
     else
