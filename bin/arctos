@@ -17,6 +17,8 @@ BEGIN{
     alaac2guid()
   else if (FUNC == "guid2alaac")
     guid2alaac()
+  else if (FUNC == "imagesync")
+    imagesync()
   else
     exit 1
 
@@ -49,14 +51,14 @@ function read_args(    arg) {
     if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
     else if (ARGV[arg] == "-d"    )  INLINE    = ARGV[++arg]
     else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
-    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac)$")
+    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac|imagesync)$")
       FUNC   = ARGV[arg]
     else if (ARGV[arg] == "-r"    )  RAW = 1 
     else if (ARGV[arg] == "-c"    )  CURL = 1 
   }
 
   # checks
-  if (FUNC ~ /^(sql|alaac)$/) {
+  if (FUNC ~ /^(sql|alaac|imagesync)$/) {
     if (INLINE && FILE)
       err("both commandline data/sql and file given")
     else if (!INLINE && !FILE)
@@ -65,7 +67,6 @@ function read_args(    arg) {
 }
 
 function config() {
-  RS="\x04";
   PROCINFO["sorted_in"] = "@ind_num_asc"
   OFS= "|"
   api_key()
@@ -140,13 +141,22 @@ function sql(sqlin,    cmd) {
     "--data 'action=run' "                                              \
     "--data 'format=csv' "                                              \
     "--data-urlencode \"sqltxt=" sqlin "\""
-
+  
   if (CURL) {
     print cmd
     exit 0
   }
 
+  # system(cmd)
+  
+  RS="\x04";
   cmd | getline csv
+  # bad connection
+  if (!csv)
+    err("nothing back from Arctos... connection down?")
+  
+  # print csv
+  # exit
   # csv2psv(csv)
   csv2data(csv)
 }
@@ -166,10 +176,10 @@ function csv2psv(csv,    line, lines, field, fields, i, j) {
   }
 }
 
-function csv2data(csv,    line, lines, field, fields, i, j) {
+function csv2data(csv,    line, field, fields, i, j) {
   delete Sqldata
-  lines = split(csv, line, "\r?\n")
-  for (i = 1; i <= lines; i++) {
+  Sqllines = split(csv, line, "\r?\n")
+  for (i = 1; i <= Sqllines; i++) {
     fields = patsplit(line[i], field, "([^,]*)|(\"([^\"]|\"\")+\")")
     for (j = 1; j <= fields; j++)
       Sqldata[i][j] = csvclean(field[j])
@@ -316,4 +326,79 @@ function idlist(method,     list) {
       list = INLINE
   }
   return list
+}
+
+function imagesync() {
+  RS="\n"
+  FS="/"
+  PROCINFO["sorted_in"] = "@ind_str_asc"
+  while (getline < IMAGELIST) {
+    # this will store only the most recent, in case there are 1+ versions:
+    if (tolower($2) ~ /\.jpe?g$/) {
+      locn[$2]["image/jpeg"] = $0
+      # id[gensub(/\..+$/,"","G",$2)]
+    }
+    else if (tolower($2) ~ /\.dng$/) {
+      locn[$2]["image/dng"] = $0
+      # id[gensub(/\..+$/,"","G",$2)]
+    }
+  }
+  
+  # for (i in id)
+  #   list = list "'" i "',"
+  # gsub(/,$/,"",list)
+  
+  sql("SELECT sheet.barcode, flat.guid, M.mime_type "                   \
+      "FROM container AS sheet "                                        \
+      "JOIN container AS plant "                                        \
+      "  ON plant.parent_container_id = sheet.container_id "            \
+      "JOIN coll_obj_cont_hist AS cont_part_link "                      \
+      "  ON cont_part_link.container_id = plant.container_id "          \
+      "JOIN specimen_part "                                             \
+      "  ON cont_part_link.collection_object_id = "                     \
+      "     specimen_part.collection_object_id "                        \
+      "JOIN flat "                                                      \
+      "  ON specimen_part.derived_from_cat_item = flat.collection_object_id " \
+      "LEFT JOIN ( "                                                    \
+      "SELECT media_relations.cataloged_item_id, media.mime_type "      \
+      "FROM media_relations, media "                                    \
+      "WHERE media_relationship = 'shows cataloged_item' "              \
+      "AND media.media_id = media_relations.media_id "                  \
+      "AND media.mime_type IN ('image/dng','image/jpeg')) AS M "        \
+      "ON M.cataloged_item_id = flat.collection_object_id "             \
+      "WHERE sheet.barcode IN (" idlist("sql") "); ")
+
+  print "** EXISTING **\n"
+  for (i in Id) {
+    found = 0
+    print Sqllines
+    for (j = 1; j <= Sqllines; j++) {
+      print j
+      if (Sqldata[j][1] == i) {
+        print i "|" Sqldata[j][2] "|" Sqldata[j][3]
+        # store for bulkload loop
+        # note, in rare cases a barcode may have 2 guids
+        bc2guid[i] = Sqldata[j][2]
+        if (Sqldata[j][3])
+          guidhasimg[i][Sqldata[j][3]]
+        found = 1
+      }
+    }
+    if (!found)
+      print i "||"
+  }
+
+  print "\n** BULKLOADER **\n"
+  OFS=","
+  # check barcodes with guid
+  for (i in bc2guid) {
+    print i "|" loc[i]["image/dng"]
+    # if there is no linked image, but it exists at TACC
+    if (!("image/dng" in guidhasimg[i]) &&
+        ("image/dng" in loc[i]))
+      print bc2guid[i], "image/dng", loc[i]["image/dng"]
+    if(!("image/jpeg" in guidhasimg[i]) &&
+       ("image/jpeg" in loc[i]))
+      print bc2guid[i], "image/jpeg", loc[i]["image/jpeg"]
+  }
 }
