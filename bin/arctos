@@ -329,21 +329,22 @@ function idlist(method,     list) {
 }
 
 function imagesync() {
+  PROCINFO["sorted_in"] = "@ind_str_asc"
+
   RS="\n"
   FS="/"
-  PROCINFO["sorted_in"] = "@ind_str_asc"
   while (getline < IMAGELIST) {
     # this will store only the most recent, in case there are 1+ versions:
     if (tolower($2) ~ /\.jpe?g$/) {
-      locn[$2]["image/jpeg"] = $0
+      locn[gensub(/\.[jJ][pP][eE]?[gG]$/,"","G",$2)]["image/jpeg"] = $0
       # id[gensub(/\..+$/,"","G",$2)]
     }
     else if (tolower($2) ~ /\.dng$/) {
-      locn[$2]["image/dng"] = $0
+      locn[gensub(/\.[dD][nN][gG]$/,"","G",$2)]["image/dng"] = $0
       # id[gensub(/\..+$/,"","G",$2)]
     }
   }
-  
+
   # for (i in id)
   #   list = list "'" i "',"
   # gsub(/,$/,"",list)
@@ -371,9 +372,7 @@ function imagesync() {
   print "** EXISTING **\n"
   for (i in Id) {
     found = 0
-    print Sqllines
     for (j = 1; j <= Sqllines; j++) {
-      print j
       if (Sqldata[j][1] == i) {
         print i "|" Sqldata[j][2] "|" Sqldata[j][3]
         # store for bulkload loop
@@ -392,13 +391,12 @@ function imagesync() {
   OFS=","
   # check barcodes with guid
   for (i in bc2guid) {
-    print i "|" loc[i]["image/dng"]
     # if there is no linked image, but it exists at TACC
     if (!("image/dng" in guidhasimg[i]) &&
-        ("image/dng" in loc[i]))
-      print bc2guid[i], "image/dng", loc[i]["image/dng"]
+        ("image/dng" in locn[i]))
+      print bc2guid[i], "image/dng", locn[i]["image/dng"]
     if(!("image/jpeg" in guidhasimg[i]) &&
-       ("image/jpeg" in loc[i]))
-      print bc2guid[i], "image/jpeg", loc[i]["image/jpeg"]
+       ("image/jpeg" in locn[i]))
+      print bc2guid[i], "image/jpeg", locn[i]["image/jpeg"]
   }
 }
