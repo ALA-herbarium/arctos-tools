@@ -6,5 +6,7 @@ SELECT COUNT(*) FROM (
   WHERE guid ~ 'UAMb?:(Herb|Alg)' AND
   higher_geog ~ 'Russia' AND
   media_relations.cataloged_item_id = flat.collection_object_id AND
+  media_relations.media_relationship = 'shows cataloged_item' AND
   media_relations.created_on_date >= '2021-05-01'
 ) AS A ;
+

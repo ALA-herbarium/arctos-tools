@@ -8,8 +8,13 @@
     * Attributes, list, using flat [[59.sql](sql/59.sql)]
  * **Barcode**
     * Barcode, and container, query on catalog number [[09.sql](sql/09.sql)]
+ * **Barcodes**
+    * Barcodes, which are herbarium sheets w/o contents but with parents (= error) [[64.sql](sql/64.sql)]
+ * **Cabinets**
+    * Cabinets, ALA, in Room 009, by Range [[65.sql](sql/65.sql)]
  * **Containers**
     * Containers [[36.sql](sql/36.sql)]
+    * Containers, major, in Rooms 003, 018, 040 [[66.sql](sql/66.sql)]
  * **Digitization progress**
     * Digitization progress, by phylum, by time period of date entered (see also 41.sql) [[40.sql](sql/40.sql)]
     * Digitization progress, by phylum, by time period of new media added (see also 40.sql) [[41.sql](sql/41.sql)]

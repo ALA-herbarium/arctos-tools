@@ -17,8 +17,10 @@ BEGIN{
     alaac2guid()
   else if (FUNC == "guid2alaac")
     guid2alaac()
-  else if (FUNC == "imagesync")
+  else if (FUNC == "image_sync")
     imagesync()
+  else if (FUNC == "name_ck")
+    namecheck()
   else
     exit 1
 
@@ -51,14 +53,15 @@ function read_args(    arg) {
     if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
     else if (ARGV[arg] == "-d"    )  INLINE    = ARGV[++arg]
     else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
-    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac|imagesync)$")
+    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac|image_sync"\
+             "|name_ck)$")
       FUNC   = ARGV[arg]
     else if (ARGV[arg] == "-r"    )  RAW = 1 
     else if (ARGV[arg] == "-c"    )  CURL = 1 
   }
 
   # checks
-  if (FUNC ~ /^(sql|alaac|imagesync)$/) {
+  if (FUNC ~ /^(sql|alaac|image_sync|name_ck)$/) {
     if (INLINE && FILE)
       err("both commandline data/sql and file given")
     else if (!INLINE && !FILE)
@@ -369,7 +372,7 @@ function imagesync() {
       "ON M.cataloged_item_id = flat.collection_object_id "             \
       "WHERE sheet.barcode IN (" idlist("sql") "); ")
 
-  print "** EXISTING **\n"
+  print "** EXISTING IMAGE LINKS IN ARCTOS**\n"
   for (i in Id) {
     found = 0
     for (j = 1; j <= Sqllines; j++) {
@@ -388,15 +391,60 @@ function imagesync() {
   }
 
   print "\n** BULKLOADER **\n"
+  print "media_related_term_1,media_uri,media_relationship_1,media_license,"\
+    "media_type,mime_type"
   OFS=","
   # check barcodes with guid
   for (i in bc2guid) {
     # if there is no linked image, but it exists at TACC
-    if (!("image/dng" in guidhasimg[i]) &&
-        ("image/dng" in locn[i]))
-      print bc2guid[i], "image/dng", locn[i]["image/dng"]
     if(!("image/jpeg" in guidhasimg[i]) &&
        ("image/jpeg" in locn[i]))
-      print bc2guid[i], "image/jpeg", locn[i]["image/jpeg"]
+      print bc2guid[i], "https://web.corral.tacc.utexas.edu/arctos/uam/ala/" \
+        locn[i]["image/jpeg"], \
+        "shows cataloged_item,CC BY-NC-SA,image,image/jpeg" 
+    if (!("image/dng" in guidhasimg[i]) &&
+        ("image/dng" in locn[i]))
+      print bc2guid[i], "https://web.corral.tacc.utexas.edu/arctos/uam/ala/" \
+        locn[i]["image/dng"], \
+        "shows cataloged_item,CC BY-NC-SA,image,image/dng" 
   }
 }
+
+function namecheck() {
+  
+  sql("SELECT scientific_name "\
+      "FROM taxon_name "\
+      "WHERE name_type = 'Linnean'"\
+      "  AND scientific_name IN (" idlist("sql") "); ")
+  for (i in Id) {
+    found = 0
+    for (j in Sqldata)
+      if (i == Sqldata[j][1]) {
+        print i "|found"
+        found = 1
+        break
+      }
+    if (!found) {
+      loader[i]
+      print i "|fail"
+    }
+  }
+
+  print "\n** BULKLOADER NAME **\n"
+  print "scientific_name,name_type"
+  OFS=","
+  # check barcodes with guid
+  PROCINFO["sorted_in"] = "@ind_str_asc"
+  for (i in loader)
+    print i, "Linnean"
+
+  print "\n** BULKLOADER CLASSIFICATION **\n"
+  print "scientific_name,source,class_term_type_1,class_term_1"
+  OFS=","
+  # check barcodes with guid
+  PROCINFO["sorted_in"] = "@ind_str_asc"
+  for (i in loader)
+    print i, "Arctos Plants,family,"
+  
+}
+
