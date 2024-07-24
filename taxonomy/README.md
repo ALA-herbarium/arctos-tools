@@ -17,16 +17,22 @@ online. In the future we will add cryptogam and lichen name sources.
 Make a list of Arctos ALA names using:
 
 ```sql
-SELECT DISTINCT scientific_name FROM flat 
-WHERE guid_prefix in ('UAM:Herb', 'UAM:Alg', 'UAM:Myco', 'UAMb:Herb')
+select DISTINCT flat.scientific_name, taxon_name_id FROM flat, taxon_name 
+WHERE flat.scientific_name = taxon_name.scientific_name AND 
+  guid_prefix in ('UAM:Herb', 'UAM:Alg', 'UAM:Myco', 'UAMb:Herb');
 ```
 
-and save as `arctos_names`
+and save as `arctos_names`:
+
+```bash
+cat sql_...csv | tail -n +2 > arctos_names
+```
 
 Download the latest WFO:
 
 ```bash
-curl -L https://files.worldfloraonline.org/files/WFO_Backbone/_WFOCompleteBackbone/WFO_Backbone.zip > WFO_Backbone.zip
+curl -L \
+  https://files.worldfloraonline.org/files/WFO_Backbone/_WFOCompleteBackbone/WFO_Backbone.zip > WFO_Backbone.zip
 unzip WFO_Backbone.zip
 ```
 
