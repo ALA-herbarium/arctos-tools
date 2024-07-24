@@ -1,3 +1,5 @@
 *schemas.xml
 bin/arctos_pw.awk
-
+taxonomy/arctos_names
+taxonomy/classification.csv
+taxonomy/WFO_Backbone.zip
