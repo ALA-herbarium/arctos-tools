@@ -2,7 +2,8 @@ BEGIN{
 
   print "reading Arctos taxa" > "/dev/stderr"
   while (getline<"arctos_names")
-    arctos[$0]
+    #  WFO has a space before the ×
+    arctos[gensub(/×([^ ])/,"× \\1","G",$0)]
   
   print "reading WFO" > "/dev/stderr"
   FS="\t"
@@ -15,21 +16,20 @@ BEGIN{
     clean()
     if ((++rep % 1000) == 0)
       printf "line %6.0d  %6.0d\r", rep, found > "/dev/stderr"
+    # lookup (outside the Arctos set)
+    wfo[$f["taxonID"]] = ($f["scientificNameAuthorship"] ?     \
+                          ($f["scientificName"] " "            \
+                           $f["scientificNameAuthorship"]) :   \
+                          $f["scientificName"])
     if (gensub(/"/,"","G",$f["scientificName"]) in arctos) {
       found++
       #if (found > 100)
       #  break
-      n[$f["scientificName"]]++
-      if (maxn < n[$f["scientificName"]])
+      if (maxn < ++n[$f["scientificName"]])
         maxn = n[$f["scientificName"]]
       # wfo ID
       d[$f["scientificName"]][n[$f["scientificName"]]]["wfo"] = \
         $f["taxonID"]
-      # lookup
-      wfo[$f["taxonID"]] = ($f["scientificNameAuthorship"] ?   \
-                            ($f["scientificName"] " "          \
-                             $f["scientificNameAuthorship"]) : \
-                            $f["scientificName"])
       # status
       d[$f["scientificName"]][n[$f["scientificName"]]]["status"] =  \
         $f["taxonomicStatus"]
@@ -80,23 +80,23 @@ BEGIN{
     "class_term_type_6,class_term_6," \
     "class_term_type_7,class_term_7," \
     "class_term_type_8,class_term_8"
-  # WFO
-  header = header ",noclass_term_type_1,noclass_term_1"
-  h = 1
+  # WFO, managed by
+  header = header ",noclass_term_type_1,noclass_term_1" \
+    ",noclass_term_type_2,noclass_term_2"
+  h = 2
   # compute number of extra terms:
   # fullname, wfoID, status, synonym_of_wfo, synonym_of_name
   for (i = 1; i <= maxn; i++)
     for (j = 1; j <= 5; j++)
       header = header                                 \
         ",noclass_term_type_" ++h ",noclass_term_" h
-  
-  gsub(/,$/,"",header)
   print header
   
   PROCINFO["sorted_in"] = "@ind_str_asc"
   for (i in d) {
     # use the hierarchical classification from #1
-    line = i ",UAM Plants"                                              \
+    #  Arctos has no space before the ×
+    line = gensub(/× +/,"×","G",i) ",UAM Plants"                        \
       ",kingdom,Plantae"                                                \
       ",phylum,Tracheophyta"                                            \
       ",family,"      d[i][1]["family"]                                 \
@@ -110,13 +110,16 @@ BEGIN{
                       (d[i][1]["genus"] " " d[i][1]["species"] " var. " \
                        d[i][1]["var"]):"")                              \
       ",forma,"      ((d[i][1]["forma"]) ?                              \
-                      (d[i][1]["genus"] " " d[i][1]["species"] " f. " \
-                       d[i][1]["forma"]):"")                          \
-      ",classification source,v.2023.12 2023-12-22"
+                      (d[i][1]["genus"] " " d[i][1]["species"] " f. "   \
+                       d[i][1]["forma"]):"")                            \
+      ",classification source,World Flora Online v.2023.12"             \
+      ",managed_by,camwebb@Arctos"
     # for each variation in author, 5 things
     for (j = 1; j <= maxn; j++)
       line = line ","                                                   \
-        j "_fullname,\""  (d[i][j]["author"] ? (i " " d[i][j]["author"]) : i) \
+        j "_fullname,\""  (d[i][j]["wfo"] ? (d[i][j]["author"] ? \
+                                             (i " " d[i][j]["author"]) : i) \
+                           : "")                                        \
         "\","                                                           \
         j "_wfoID,"      d[i][j]["wfo"] ","                             \
         j "_status,"     d[i][j]["status"] ","                          \
