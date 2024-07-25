@@ -1,10 +1,12 @@
 BEGIN{
 
+  # WFO has a space before the ×, Arctos does not. For consistency, the
+  #  WFO space is removed
+
   print "reading Arctos taxa" > "/dev/stderr"
   FS=","
   while (getline<"arctos_names")
-    #  WFO has a space before the ×
-    arctos[gensub(/×([^ ])/,"× \\1","G",$1)] = $2 
+    arctos[$1] = $2
   
   print "reading WFO" > "/dev/stderr"
   FS="\t"
@@ -22,7 +24,11 @@ BEGIN{
                           ($f["scientificName"] " "            \
                            $f["scientificNameAuthorship"]) :   \
                           $f["scientificName"])
-    if (gensub(/"/,"","G",$f["scientificName"]) in arctos) {
+    # strip quotes
+    gsub(/"/,"",$f["scientificName"])
+    # WFO has a space after ×, clear in all fields
+    gsub(/× +/,"×",$0)
+    if ($f["scientificName"] in arctos) {
       found++
       # if (found > 100)
       #  break
@@ -97,8 +103,7 @@ BEGIN{
     PROCINFO["sorted_in"] = "@ind_str_asc"
     for (i in d) {
       # use the hierarchical classification from #1
-      #  Arctos has no space before the ×
-      line = gensub(/× +/,"×","G",i) ",UAM Plants"                        \
+      line = i ",UAM Plants"                        \
         ",kingdom,Plantae"                                                \
         ",phylum,Tracheophyta"                                            \
         ",family,"      d[i][1]["family"]                                 \
@@ -148,8 +153,7 @@ BEGIN{
     for (i in d) {
       suffix = "),"
       # use the hierarchical classification from #1
-      #  Arctos has no space before the ×
-      prefix = "  (" arctos[gensub(/× +/,"×","G",i)] ", 'UAM Plants', '" \
+      prefix = "  (" arctos[i] ", 'UAM Plants', '" \
         substr(uuid,1,13) sprintf("-%05d", ++u) "',\n    "
       print prefix "1, 'kingdom', 'Plantae'" suffix
       print prefix "2, 'phylum', 'Tracheophyta'" suffix
