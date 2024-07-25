@@ -1,4 +1,4 @@
--- Specimens, from a list of NPS Catalog #s, return all fields for nacompare
+-- Specimens, from a list of NPS Catalog #s, return all fields for nacompare - replaced by 68.sql
 
 SELECT
   -- 1 - Catalog # (direct)
