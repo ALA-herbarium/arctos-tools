@@ -1,5 +1,7 @@
 BEGIN{
-
+  BULKLOADER = "bulkloader"
+  TESTING = 0
+  
   # WFO has a space before the ×, Arctos does not. For consistency, the
   #  WFO space is removed
 
@@ -20,7 +22,8 @@ BEGIN{
     if ((++rep % 1000) == 0)
       printf "line %6.0d  %6.0d\r", rep, found > "/dev/stderr"
     # lookup (outside the Arctos set)
-    wfo[$f["taxonID"]] = ($f["scientificNameAuthorship"] ?     \
+    wfo["https://worldfloraonline.org/taxon/" $f["taxonID"]] = \
+      ($f["scientificNameAuthorship"] ?                        \
                           ($f["scientificName"] " "            \
                            $f["scientificNameAuthorship"]) :   \
                           $f["scientificName"])
@@ -30,19 +33,21 @@ BEGIN{
     gsub(/× +/,"×",$0)
     if ($f["scientificName"] in arctos) {
       found++
-      # if (found > 100)
-      #  break
+      if (TESTING)
+        if (found > 100)
+          break
       if (maxn < ++n[$f["scientificName"]])
         maxn = n[$f["scientificName"]]
       # wfo ID
       d[$f["scientificName"]][n[$f["scientificName"]]]["wfo"] = \
-        $f["taxonID"]
+        "https://worldfloraonline.org/taxon/" $f["taxonID"]
       # status
       d[$f["scientificName"]][n[$f["scientificName"]]]["status"] =  \
         $f["taxonomicStatus"]
       # status
       d[$f["scientificName"]][n[$f["scientificName"]]]["acceptedWFO"]   \
-        = $f["acceptedNameUsageID"]
+        = $f["acceptedNameUsageID"] ? ("https://worldfloraonline.org/taxon/" \
+                                       $f["acceptedNameUsageID"]) : ""
       # author
       d[$f["scientificName"]][n[$f["scientificName"]]]["author"] =  \
         $f["scientificNameAuthorship"]
@@ -73,7 +78,7 @@ BEGIN{
   }
   print "" > "/dev/stderr"
 
-  if (BULKLOADER) {
+  if (BULKLOADER=="bulkloader") {
     # make bulkloader file header first: name, arctos_source,
     # hierarchical terms, for all: kingdom, phylum, fam, genus, species,
     #   subsp, var, forma = 8
@@ -98,7 +103,9 @@ BEGIN{
       for (j = 1; j <= 5; j++)
         header = header                                 \
           ",noclass_term_type_" ++h ",noclass_term_" h
-    print header
+    # final synlist (opt)
+    header = header ",noclass_term_type_" ++h ",noclass_term_" h
+    print header ",status"
   
     PROCINFO["sorted_in"] = "@ind_str_asc"
     for (i in d) {
@@ -121,21 +128,29 @@ BEGIN{
                          d[i][1]["forma"]):"")                            \
         ",classification source,World Flora Online v.2023.12"             \
         ",managed_by,camwebb@Arctos"
+      synlist = i
       # for each variation in author, 5 things
-      for (j = 1; j <= maxn; j++)
+      for (j = 1; j <= maxn; j++) {
+        j0 = j # opt: = sprintf("%02d",j)
         line = line ","                                                   \
-          j "_fullname,\""  (d[i][j]["wfo"] ? (d[i][j]["author"] ? \
-                                               (i " " d[i][j]["author"]) : i) \
-                             : "")                                        \
+          j0 "_fullname,\""  (d[i][j]["wfo"] ? (d[i][j]["author"] ?     \
+                                                (i " " d[i][j]["author"]) : i) \
+                              : "")                                     \
           "\","                                                           \
-          j "_wfoID,"      d[i][j]["wfo"] ","                             \
-          j "_status,"     d[i][j]["status"] ","                          \
-          j "_synonym_of_wfoID," d[i][j]["acceptedWFO"] ","               \
-          j "_synonym_of_name,\"" wfo[d[i][j]["acceptedWFO"]] "\""
-      print line
+          j0 "_wfoID," d[i][j]["wfo"] "," \
+          j0 "_status,"     d[i][j]["status"] ","                          \
+          j0 "_synonym_of_wfoID," d[i][j]["acceptedWFO"] ","             \
+          j0 "_synonym_of_name,\"" wfo[d[i][j]["acceptedWFO"]] "\""
+        # make searchable synonymy list
+        synlist = synlist (wfo[d[i][j]["acceptedWFO"]] ? \
+                           ("; " wfo[d[i][j]["acceptedWFO"]]) : "")
+      }
+      # synlist (opt)
+      line = line ",synonyms,\"" synlist "\""
+      print line ",autoload"
     }
   }
-  else {
+  else if (BULKLOADER=="sql") {
     # $ sqlite3 test.db
     # > CREATE TABLE taxon_term (taxon_name_id INTEGER, source TEXT,
     #   classification_id TEXT, term_type TEXT, position_in_classification
@@ -181,7 +196,7 @@ BEGIN{
       for (j = 1; j <= n[i]; j++) {
         print prefix "NULL ,'" j "_fullname','"                                \
           (d[i][j]["author"] ? (i " "  d[i][j]["author"]) : i ) "'" suffix
-        print prefix "NULL ,'" j "_wfoID','https://worldfloraonline.org/taxon/" \
+        print prefix "NULL ,'" j "_wfoID','" \
           d[i][j]["wfo"] "'" suffix
         print prefix "NULL ,'" j "_status','" d[i][j]["status"] "'" suffix
         print prefix "NULL ,'" j "_synonym_of_wfoID'," \
@@ -212,7 +227,7 @@ function clean(   i) {
     gsub(/""/,"\"",$i)
     gsub(/""/,"\"",$i)
     # for SQL:
-    if (!BULKLOADER)
+    if (BULKLOADER=="sql")
       gsub(/'/,"''",$i)
   }
 }
