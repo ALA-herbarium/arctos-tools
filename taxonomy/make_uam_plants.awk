@@ -131,7 +131,7 @@ BEGIN{
       synlist = i
       # for each variation in author, 5 things
       for (j = 1; j <= maxn; j++) {
-        j0 = j # opt: = sprintf("%02d",j)
+        j0 = sprintf("%02d",j) # = j
         line = line ","                                                   \
           j0 "_fullname,\""  (d[i][j]["wfo"] ? (d[i][j]["author"] ?     \
                                                 (i " " d[i][j]["author"]) : i) \
