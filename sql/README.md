@@ -55,6 +55,9 @@
     * Part attribute, location, list only the most recent for an object [[61.sql](sql/61.sql)]
  * **Parts**
     * Parts, all in ROOM20, using just flat [[63.sql](sql/63.sql)]
+    * Parts, all, in a specific freezer rack [[69.sql](sql/69.sql)]
+ * **Record edits**
+    * Record edits, by date and table, for an operator [[67.sql](sql/67.sql)]
  * **SQL tricks**
     * SQL tricks, creating a temporary table with CREATE [[52.sql](sql/52.sql)]
  * **Scientific names**
@@ -81,7 +84,8 @@
     * Specimens, from a list of ALAAC/GUID numbers, return primary info fields [[14.sql](sql/14.sql)]
     * Specimens, from a list of GUID numbers, return all fields for export to NPS [[27.sql](sql/27.sql)]
     * Specimens, from a list of GUID numbers, return fields for NPS checking [[23.sql](sql/23.sql)]
-    * Specimens, from a list of NPS Catalog #s, return all fields for nacompare [[29.sql](sql/29.sql)]
+    * Specimens, from a list of GUIDs, return all fields for nacompare, replacing 29.sql [[68.sql](sql/68.sql)]
+    * Specimens, from a list of NPS Catalog #s, return all fields for nacompare - replaced by 68.sql [[29.sql](sql/29.sql)]
     * Specimens, having more than one ALAAC identifier [[55.sql](sql/55.sql)]
     * Specimens, list bryophytes with photos, but needing transcription [[47.sql](sql/47.sql)]
     * Specimens, photos but no transcribed data, return GUID, barcode, Media URL [[19.sql](sql/19.sql)]

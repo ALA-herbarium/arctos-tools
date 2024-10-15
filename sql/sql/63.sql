@@ -1,7 +1,7 @@
 -- Parts, all in ROOM20, using just flat
 
 SELECT guid, accession,
-  JSONB_PATH_QUERY(part::jsonb, '$.part_id')::text AS id,
+  JSONB_PATH_QUERY(part::jsonb, '$.partID')::text AS id,
   JSONB_PATH_QUERY(part::jsonb, '$.part_name')::text AS name,
   JSONB_PATH_QUERY(part::jsonb, '$.part_barcode')::text AS bc,
   REGEXP_REPLACE(JSONB_PATH_QUERY(part::jsonb, '$.container_path')::text,
