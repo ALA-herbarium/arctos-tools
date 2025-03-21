@@ -17,6 +17,8 @@ BEGIN{
     alaac2guid()
   else if (FUNC == "guid2alaac")
     guid2alaac()
+  else if (FUNC == "guid2id1")
+    guid2id1()
   else if (FUNC == "image_sync")
     imagesync()
   else if (FUNC == "name_ck")
@@ -48,12 +50,17 @@ BEGIN{
 
 function read_args(    arg) {
   # Defaults
+
+  if (ARGC<2) {
+    print "arctos sql | about_api | alaac2guid | guid2alaac | guid2id1 | image_sync |name_ck" > "/dev/stderr"
+    exit
+  }
   
   for (arg = 1; arg < ARGC; arg++) {
     if      (ARGV[arg] == "-a"    )  ACCN   = ARGV[++arg]
     else if (ARGV[arg] == "-d"    )  INLINE    = ARGV[++arg]
     else if (ARGV[arg] == "-f"    )  FILE   = ARGV[++arg]
-    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac|image_sync"\
+    else if (ARGV[arg] ~ "^(sql|about_api|alaac2guid|guid2alaac|guid2id1|image_sync"\
              "|name_ck)$")
       FUNC   = ARGV[arg]
     else if (ARGV[arg] == "-r"    )  RAW = 1 
@@ -299,6 +306,25 @@ function guid2alaac() {
   }
 }
 
+function guid2id1() {
+  
+  sql("SELECT guid, identification_id "\
+      "FROM flat "\
+      "WHERE guid IN (" idlist("sql") ") "\
+      "ORDER BY guid;")
+  for (i in Id) {
+    found = 0
+    for (j in Sqldata)
+      if (i == Sqldata[j][1]) {
+        print i "|https://arctos.database.museum/guid/" i  \
+            "/IID" Sqldata[j][2]
+        found = 1
+        break
+      }
+    if (!found)
+      print i "|"
+  }
+}
 
 function idlist(method,     list) {  
   # create query list 'list' and identifer array 'id'
