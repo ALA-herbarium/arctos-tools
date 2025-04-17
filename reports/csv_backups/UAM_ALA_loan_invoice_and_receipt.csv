@@ -1,0 +1,178 @@
+"REPORT_ID","REPORT_NAME","REPORT_TYPE","REPORT_DESCRIPTION","CREATED_BY_AGENT_ID","LAST_MODIFIED_BY_AGENT_ID","LAST_MODIFIED_DATE","LAST_ACCESS","CREATED_DATE","CREATED_BY_COLLECTION","USED_BY_COLLECTIONS","ACCEPTS_VARIABLE","REPORT_CFM","REPORT_CSS","REPORT_SQL","PREVIEW_URL","REPORT_PDF_PARAMS"
+"333","UAM ALA loan invoice and receipt","dry label","Herbarium specimens loan letter and receipt form","21301176","21301176","2025-04-17","2025-04-17","2025-04-17","UAM:Herb","","transaction_id","<cf_getLoanFormInfo>
+<!DOCTYPE html>
+<html xmlns=""http://www.w3.org/1999/xhtml"">
+  <head>
+    <title>Loan invoice</title>
+    <style type=""text/css"">
+      td { padding: 5px; font-size: 10pt; }
+      div { /* border: 1px dashed; */ padding: 5px; }
+    </style>
+  </head>
+  <body>
+    <!-- container -->
+    <div style=""margin: 10px;
+                font-family: sans-serif;
+                font-size: 10pt;"">
+      <!-- top -->
+      <div style=""display: flex;
+                  align-items: flex-start;
+                  justify-content: space-between;"">
+        <!-- top left -->
+        <div style=""width: 2in; font-weight: bold;"">
+          Loan: #getLoan.loan_number#
+        </div>
+        <!-- top center -->
+        <div style=""width: 2.5in;
+                    text-align: center;
+                    font-weight: bold;"">
+          Invoice and Receipt<br/>
+          U Alaska Museum<br/>
+          Herbarium (ALA)
+        </div>
+        <!-- dummy -->
+        <div style=""width: 2in;"">
+          Museum of the North</br>
+          University of Alaska<br/>
+          1962 Yukon Drive<br/>
+          Fairbanks, AK 99775
+        </div>
+      </div>
+      <!-- block 2 -->
+      <div style=""display: flex;
+                  padding: 10px;
+                  align-items: flex-start;
+                  justify-content: space-between;"">
+        <div style=""width: 4.5in"">
+          <b>#getLoan.outside_contact_name#</b><br/>
+          #replace(getLoan.shipped_to_address,chr(10),""<br/>"",""all"")#
+        </div>
+        <div style=""width: 3.5in; border: 1px solid; padding: 10px;"">
+          Approved by:<br/><br/><br/>
+          <span style=""border-top: 1px solid; padding-top: 5px;"">
+            <!-- #getLoan.authagentname# --> Steffi Ickert-Bond, Curator
+          </span>
+        </div>
+      </div>
+      <!-- block 3 -->
+      <div>
+        <div>
+          <span style=""font-weight: bold;"">Loan type</span>: #getLoan.loan_type#
+          <br/><br/> 
+          <span style=""font-weight: bold;"">Due date</span>: #dateformat(getLoan.return_due_date,""dd mmmm yyyy"")#
+          <br/><br/> 
+          <span style=""font-weight: bold;"">Nature of material</span>: #getLoan.nature_of_material#
+          <br/><br/> 
+          <!-- <br/><br/>
+          <span style=""font-weight: bold;"">Description</span>: #getLoan.loan_description#
+          -->
+          <span style=""font-weight: bold;"">Material</span> (Arctos GUID, sheet barcode, ALA accession no., taxon name):        
+        </div>
+      </div>
+      <!-- block 4 -->
+      <div style=""padding-left: 30px;"">
+        <!-- div style=""columns: 2in 4; font-size: 8pt;"" -->
+          <cfloop query=""d"">
+            #guid# (#barcode#, #alaac#) <i>#scientific_name#</i><br/>
+          </cfloop>
+        <!-- /div  -->
+      </div>
+      <!-- block 5 --> 
+      <div>
+        <div>
+          <p>Loan prepared by: #getLoan.processed_by_name# (#dateformat(now(),""dd mmmm yyyy"")#)
+          <br/>
+          <p>
+            We ask that you please cite each of our specimens
+            individually (i.e. not as a range) in any resulting
+            publications by their Arctos GUID (e.g. UAM:Herb:12345) and
+            notify the collection at the time of publication.
+          </p>
+          <p>We ask that where possible the specimens are returned with annotation labels either confirming or updating the determination.
+          </p>
+          <p>
+            <b>Receipt</b>: Please initial the following, report on the the condition of arrival, sign, and return this form via post, or via email. Thank you.
+          </p>
+          <table>
+            <tr>
+              <td style=""font-size: 6pt;"">[  ]<br/>Initials</td>
+              <td>
+                I will include UAM catalog numbers in subsequent
+              publications, reports, presentation, and/or GenBank
+              submissions.
+              </td>
+            </tr>
+            <tr>
+              <td style=""font-size: 6pt;"">[  ]<br/>Initials</td>
+              <td>
+                I will provide a DOI or copy of reprints to the ALA Herbarium.
+              </td>
+            </tr>
+            <tr>
+              <td style=""font-size: 6pt;"">[  ]<br/>Initials</td>
+              <td>
+                I will only use the material loaned for the study
+                outlined in my original proposal. I will obtain
+                written permission to use the material outside the
+                scope of my proposal or to transfer the material to a
+                third party.
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style=""padding-top: 10px;"">
+                Condition of material on arrival:
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style=""padding-top: 10px;"">
+                All specimens listed have arrived:
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style=""padding-top: 10px;"">
+                Signature, name and date:
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<!--
+  <div>
+    <div>LOAN #getLoan.loan_number#</div>
+    <div>DATE #dateformat(getLoan.trans_date,""dd mmm yyyy"")#</div>			
+    <div>TO ADDRESS #replace(getLoan.shipped_to_address,chr(10),""<br/>"",""all"")#</div>
+    <div>AUTH NAME #getLoan.authagentname#</div>
+    <div>Loan Type: #getLoan.loan_type#</div>
+    <div>Nature of Material: #getLoan.nature_of_material#</div>
+    <div>Remarks: #getLoan.trans_remarks#</div>
+    <div>Description: #getLoan.loan_description#</div>
+    <div>Instructions: #getLoan.loan_instructions#</div>
+    <div>FROM: #replace(getLoan.shipped_from_address,chr(10),""<br>"",""all"")#</div>
+    <div>Email: #getLoan.inside_email_address#</div>
+    <div>Outside contact: #getLoan.outside_contact_name#</div>
+    <div>Now: #dateformat(now(),""dd mmmm yyyy"")#</div>
+    <div>Processed by: #getLoan.processed_by_name#</div>
+    <div>Due: #dateformat(getLoan.return_due_date,""dd mmmm yyyy"")#</div>
+</div>
+-->","","SELECT flat.guid, flat.scientific_name,
+-- NOTE: this will get multiple barcodes if the record has multiple parts
+-- JSONB_PATH_QUERY_ARRAY(flat.partdetail::jsonb , '$[*] .part_barcode')::text AS barcodes,
+sheet.barcode,
+specimen_part.part_name,
+REGEXP_REPLACE(JSONB_PATH_QUERY_ARRAY(flat.identifiers::jsonb , '$[*] ? (@.identifier_type == ""ALAAC"") .identifier')::text,'[""\]\[]','','g') AS alaac
+FROM loan_item
+INNER JOIN specimen_part ON loan_item.part_id = specimen_part.collection_object_id
+INNER JOIN flat ON specimen_part.derived_from_cat_item = flat.collection_object_id    
+LEFT JOIN coll_obj_cont_hist ON coll_obj_cont_hist.collection_object_id = specimen_part.collection_object_id
+LEFT JOIN container AS plant ON plant.container_id = coll_obj_cont_hist.container_id
+LEFT JOIN container AS sheet ON sheet.container_id = plant.parent_container_id
+WHERE loan_item.transaction_id=<cfqueryparam value=""#transaction_id#"" CFSQLType=""cf_sql_int"">
+ORDER BY LENGTH(guid), guid
+LIMIT 1000
+","","{""orientation"":""portrait"",""unit"":""in"",""marginTop"":"".5"",""marginBottom"":"".5"",""marginLeft"":"".5"",""marginRight"":"".5"",""pageType"":""letter""}"
